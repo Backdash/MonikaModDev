@@ -1490,6 +1490,99 @@ label mas_song_when_youre_gone:
     m 6ekbsa "In addition to being the love of my life, you're also my best friend.{w=0.2} Don't ever underestimate how important you are to me."
     return
 
+init 5 python:
+    addEvent(
+        Event(
+            persistent._mas_songs_database,
+            eventlabel="mas_song_swing_lifeaway_short",
+            prompt="Swing Life Away",
+            category=[store.mas_songs.TYPE_SHORT],
+            random=True,
+            unlocked=True,
+            aff_range=(mas_aff.NORMAL,None)
+         ),
+        code="SNG"
+    )
+
+label mas_song_swing_lifeaway_short:
+    m "{i}~Am I loud and clear,{/i}{w=0.2}{nw}"
+    extend "{i} or am I breaking up?~{/i}"
+    m "{i}~Am I still your charm,{/i}{w=0.2}{nw}"
+    extend "{i} or am I just bad luck?~{/i}"
+    m "{i}~Are we getting closer,{/i}{w=0.2}{nw}"
+    extend "{i} or are we just getting more lost?~{/i}"
+    m "{i}~I'll show you mine,{/i}{w=0.2}{nw}"
+    extend "{i} if you show me yours first~{/i}"
+    m "{i}~Let's compare scars,{/i}{w=0.2}{nw}"
+    extend "{i} I'll tell you whose is worse~{/i}"
+    m "{i}~Let's unwrite these pages,{/i}{w=0.2}{nw}"
+    extend "{i} and replace them with our own words~{/i}"
+
+    m "Being vulnerable and showing the scars of your past can be daunting to say the least..."
+    m "There are so many ways what you have been through could be interpreted and used to hurt you."
+    m "But just know that I will never hold your past over your head, no matter what."
+    m "We should just write our own story together, and accept our scars as necessary components of shaping us."
+    m "No matter how lost we get, when we're together, we write on nothing but blank pages~"
+    return
+
+init 5 python:
+    addEvent(
+        Event(
+            persistent._mas_songs_database,
+            eventlabel="mas_song_swing_lifeaway_long",
+            prompt="Swing Life Away",
+            category=[store.mas_songs.TYPE_LONG],
+            random=False,
+            unlocked=False,
+            aff_range=(mas_aff.NORMAL,None)
+         ),
+        code="SNG"
+    )
+
+label mas_song_swing_lifeaway_long:
+    call mas_song_swing_lifeaway_long(from_long=True)
+    m "{i}~Am I loud and clear,{/i}{w=0.2}{nw}"
+    extend "{i} or am I breaking up?~{/i}"
+    m "{i}~Am I still your charm,{/i}{w=0.2}{nw}"
+    extend "{i} or am I just bad luck?~{/i}"
+    m "{i}~Are we getting closer,{/i}{w=0.2}{nw}"
+    extend "{i} or are we just getting more lost?~{/i}"
+    m "{i}~I'll show you mine,{/i}{w=0.2}{nw}"
+    extend "{i} if you show me yours first~{/i}"
+    m "{i}~Let's compare scars,{/i}{w=0.2}{nw}"
+    extend "{i} I'll tell you whose is worse~{/i}"
+    m "{i}~Let's unwrite these pages,{/i}{w=0.2}{nw}"
+    extend "{i} and replace them with our own words~{/i}"
+
+    m "{i}~We live on front porches and swing life away~{/i}"
+    m "{i}~We get by just fine here on minimum wage~{/i}"
+    m "{i}~If love is a labour I'll slave till the end~{/i}"
+    m "{i}~I won't cross these streets until you hold my hand~{/i}"
+
+    m "{i}~I've been here so long,{/i}{w=0.2}{nw}"
+    extend "{i} I think it's time to move~{/i}"
+    m "{i}~The winter's so cold,{/i}{w=0.2}{nw}"
+    extend "{i} summer's over too soon~{/i}"
+    m "{i}~Let's pack our bags and{/i}{w=0.2}{nw}"
+    extend "{i} settle down where palm trees grow~{/i}"
+    m "{i}~I've got some friends,{/i}{w=0.2}{nw}"
+    extend "{i} some that I hardly know~{/i}"
+    m "{i}~But we've had some times{/i}{w=0.2}{nw}"
+    extend "{i} I wouldn't trade for the world~{/i}"
+    m "{i}~We chase these days down with talks of{/i}{w=0.2}{nw}"
+    extend "{i} the places that we will go~{/i}"
+
+    m "{i}~We live on front porches and swing life away~{/i}"
+    m "{i}~We get by just fine here on minimum wage~{/i}"
+    m "{i}~If love is a labour I'll slave till the end~{/i}"
+    m "{i}~I won't cross these streets until you hold my hand~{/i}"
+
+    m "{i}~Swing life away~{/i}"
+    m "{i}~Swing life away~{/i}"
+    m "{i}~Swing life away~{/i}"
+    m "{i}~Swing life away~{/i}"
+
+
 ################################ NON-DB SONGS############################################
 # Below is for songs that are not a part of the actual songs db and don't
 # otherwise have an associated file (eg holiday songs should go in script-holidays)
