@@ -15692,3 +15692,47 @@ label monika_eating_meat:
     extend 3hub "That way I can still enjoy your cooking!"
     m 3eua "Whatever we eat, the most important thing to me is that we try to put a little thought into where our food comes from."
     return
+
+init 5 python:
+    addEvent(
+        Event(
+            persistent.event_database,
+            eventlabel="monika_staring",
+            category=['monika, romance'],
+            prompt="Staring contest",
+            random=True,
+            aff_range=(mas_aff.ENAMORED, None)
+
+        )
+    )
+
+label monika_staring:
+    m 6eub "Hey [player], look into my eyes for a second..."
+
+    window hide
+    show monika 1eua_static with dissolve_monika
+    m 1eua_static "..."
+    show monika 1etu_static with dissolve_monika
+    m 1etu_static "..."
+    show monika 2tubsa with dissolve_monika
+    m 2tubsa "..."
+    window auto
+
+    show monika 5subsa at t11 zorder MAS_MONIKA_Z with dissolve_monika
+    m 5subsa "{w=0.3}.{w=0.3}.{w=0.3}."
+    show monika 3hua at t11 zorder MAS_MONIKA_Z with dissolve_monika
+    m 3hua "Ehehe~"
+    m 3rksdla "Sorry [player], I was just trying to see your beautiful eyes through the screen."
+
+    if persistent._mas_pm_eye_color is not None:
+        m "When we're alone together, I can't help but envision your [persistent._mas_pm_eye_color] eyes..."
+
+    else:
+        m "When we're alone together, I can't help but envision your eyes..."
+    show monika 5dubsa at t11 zorder MAS_MONIKA_Z with dissolve_monika
+    m 5dubsa "Time stops, and I can finally just...let out all this baggage."
+    show monika 6hubfb at t11 zorder MAS_MONIKA_Z with dissolve_monika
+    m 6hubfb "..."
+    m 6tubfa "Thank you so much, [player]~"
+    m 6kubfb "Because you're here with me now, I'm so at peace."
+    return
