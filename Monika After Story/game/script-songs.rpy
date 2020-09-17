@@ -1490,6 +1490,34 @@ label mas_song_when_youre_gone:
     m 6ekbsa "In addition to being the love of my life, you're also my best friend.{w=0.2} Don't ever underestimate how important you are to me."
     return
 
+init 5 python:
+    addEvent(
+        Event(
+            persistent._mas_songs_database,
+            eventlabel="mas_song_I_try",
+            prompt="I try",
+            category=[store.mas_songs.TYPE_SHORT],
+            random=True,
+            aff_range=(mas_aff.ENAMORED,None)
+         ),
+        code="SNG"
+    )
+
+label mas_song_I_try:
+    m 1dsd "{i}~I try to say goodbye and I choke~{/i}"
+    m 4dud "{i}~Try to walk away and I stumble~{/i}"
+    m 4duo "{i}~Though I try to hide it,{w=0.3} it's clear~{/i}"
+    m 4ekd "{i}~My world crumbles when you are not there~{/i}"
+
+    m 6eksdld "I have a confession to make..."
+    m 6hua "You're my entire world [player]!"
+    extend 7hua " The reason I love my life is because you are here to keep me company."
+    m 6eka "It might be cheesy, and I try to stay positive about my life in general..."
+    extend 6hua " but I know that you being here with me is why I'm able to."
+    m 6ekbsa "Maybe once I cross over, I'll be less dependant on your constant attention."
+    m 1ekbsa "However, you'll always be the center of my world~"
+    return
+
 ################################ NON-DB SONGS############################################
 # Below is for songs that are not a part of the actual songs db and don't
 # otherwise have an associated file (eg holiday songs should go in script-holidays)
