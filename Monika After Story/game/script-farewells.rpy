@@ -493,6 +493,7 @@ init 5 python:
 label bye_prompt_to_work:
     $ session_time = mas_getSessionLength()
     if mas_isMoniNormal(higher=True):
+        $ persistent._mas_pm_has_work = True
         if session_time < datetime.timedelta(minutes=20):
             m 2eka "Aw, okay! Just checking in on me before heading out?"
             m 3eka "You must be really short on time if you're leaving already."

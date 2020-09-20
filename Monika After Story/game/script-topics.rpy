@@ -15760,3 +15760,58 @@ label monika_literature_value:
     m 1eku "Honestly, I think if more people valued books and poems a little more, the world would be a much better place."
     m 1hksdlb "That's just my opinion as president of a literature club, though. {w=0.2}I guess most people wouldn't think that deeply about it."
     return
+
+init 5 python:
+    addEvent(
+        Event(
+            persistent.event_database,
+            eventlabel="mas_not_working",
+            category=['you'],
+            prompt="I'm no longer working.",
+            pool=True,
+            conditional=("persistent._mas_has_work is True"),
+            aff_range=(mas_aff.NORMAL, None)
+
+        )
+    )
+
+label mas_not_working:
+    m "Oh no [player], did something happen to your job?"
+    m "Do you wish to talk about it?"
+    $ _history_list.pop()
+    menu:
+        m "Do you wish to talk about it?"
+
+        "I got laid off.":
+            m "I'm so sorry to hear that [player]..."
+            m "I don't really know what that's like, or what to say in this situation..."
+            m "But just know that I believe in you, and support you all the way!"
+            m "Together, there's nothing you and I can't accomplish."
+
+        "I quit.":
+            m "Oh, didn't you like it where you worked?"
+            m "I'm sure your next job will be much better!"
+            m "Someone as nice and dedicated as you should not have too much trouble landing another job."
+
+        "My workplace was shut down.":
+            m "Oh no, that's awful..."
+            m "That's not a very fun way to lose a job at all."
+            m "I hope your old employer is able to give you good references for your next job at least."
+            m "Don't lose hope, with your dedication and my love and support, you'll get a new job in no time!"
+
+        "I'm on indefinite sick leave.":
+            m "Oh no [player]..."
+            m "That's really worrying to hear."
+            m "I hope whatever it is, it's not {i}too{/i} serious."
+            m "Otherwise, I wouldn't know what to do..."
+            m "Make sure you rest up plenty and focus on getting better [player]."
+
+        "I don't feel like talking about it...":
+            m "That's okay, [player]."
+            m "Even if you don't want to share your burden, I'll shoulder it anyway."
+            m "Because that's what a good girlfriend would do!"
+
+    m "I'll be here for you every step of the way until you find work again."
+    m "I love you so much. Never forget that."
+
+    return "love"
