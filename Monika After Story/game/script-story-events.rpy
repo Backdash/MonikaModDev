@@ -25,10 +25,10 @@ label mas_gender:
     m 3eksdla "...The main character was, after all."
     m 3eua "But if I'm going to be your girlfriend, I should probably know at least this much about the real you."
 
-    m 1eua "So, what's your gender?{nw}"
+    m 1eua "So, what gender do you identify as?{nw}"
     $ _history_list.pop()
     menu:
-        m "So, what's your gender?{fast}"
+        m "So, what gender do you identify as?{fast}"
 
         "Male.":
             $ persistent._mas_pm_is_trans = False
@@ -49,16 +49,11 @@ label mas_gender:
             $ persistent.gender = "X"
             call mas_gender_neither
 
-        "I'm transgender.":
-            call mas_gender_trans
-
-            if persistent.gender != "X":
-                m 1eka "Thanks for telling me, and just remember..."
-
     m 1ekbsa "I'll always love you for who you are, [player]~"
 
-    #Unlock the gender redo event
+    #Unlock the gender redo event and the transgender reveal topic
     $ mas_unlockEVL("monika_gender_redo","EVE")
+    $ mas_unlockEVL("mas_transgender_reveal", "EVE")
     # set pronouns
     call mas_set_gender
 
@@ -118,10 +113,10 @@ label monika_gender_redo:
                 m 3hub "Feel free to let me know as often as you'd like when you want me to use different pronouns!"
 
     $ gender_var = None
-    m "So, what's your gender?{nw}"
+    m "So, what gender do you identify as?{nw}"
     $ _history_list.pop()
     menu:
-        m "So, what's your gender?{fast}"
+        m "So, what gender you do identify as?{fast}"
 
         "I'm a boy.":
             if persistent.gender == "M" and not persistent._mas_pm_is_trans:
@@ -151,11 +146,6 @@ label monika_gender_redo:
                     call mas_gender_redo_react
                 else:
                     call mas_gender_neither
-
-        "I'm transgender.":
-            call mas_gender_trans
-            if persistent.gender != "X":
-                call mas_gender_redo_react
 
     show monika 5hubsa at t11 zorder MAS_MONIKA_Z with dissolve_monika
     m 5hubsa "I'll always love you for who you are~"
@@ -191,33 +181,48 @@ label mas_gender_redo_neither_same:
     m 1eka "But just know that it doesn't matter to me..."
     return
 
-label mas_gender_trans:
+
+init 5 python:
+    addEvent(
+        Event(
+            persistent.event_database,
+            eventlabel="mas_transgender_reveal",
+            category=["you"],
+            prompt=(
+                "I want to tell you that I am transgender"
+                if persistent._mas_pm_is_trans else
+                "I want to tell you that I am no longer transgender"
+            ),
+            unlocked=False,
+            pool=True,
+            rules={"no_unlock": None},
+        ),
+        markSeen=True
+    )
+
+label mas_transgender_reveal:
     if persistent._mas_pm_is_trans:
-        $ menu_question = "And what gender do you identify as?"
+        m 1eua "TODO: YOU ARE TELLING ME THAT YOU ARE NO LONGER TRANSGENDER"
+
+        python:
+            persistent._mas_pm_is_trans = False
+            mas_globals.this_ev.prompt = (
+                "I want to tell you that I am transgender"
+            )
+
     else:
-        $ menu_question = "Oh, okay! {w=0.3}And what gender do you identify as?"
+        m 1eua "TODO: YOU ARE TELLING ME THAT YOU ARE TRANSGENDER"
 
-    m 3eub "[menu_question]{nw}"
-    $ _history_list.pop()
-    menu:
-        m "[menu_question]{fast}"
+        python:
+            persistent._mas_pm_is_trans = True
+            mas_globals.this_ev.prompt = (
+                "I want to tell you that I am no longer transgender"
+            )
 
-        "Male":
-            $ persistent.gender = "M"
+    m 1sub "TODO: something happy i guess"
 
-        "Female":
-            $ persistent.gender = "F"
-
-        "Neither":
-            if persistent.gender == "X":
-                call mas_gender_redo_neither_same
-
-            else:
-                $ persistent.gender = "X"
-                call mas_gender_neither
-
-    $ persistent._mas_pm_is_trans = True
     return
+
 
 # good, bad, awkward name stuff
 init 3 python:
