@@ -473,6 +473,7 @@ python early:
             "sensitive":16,
             "aff_range":17,
             "show_in_idle":18,
+            "loadlags":19
         }
 
         # name constants
@@ -625,6 +626,7 @@ python early:
 
             self.rules = rules
             self.flags = flags
+            self.loadflags = False
 
             # this is the data tuple. we assemble it here because we need
             # it in two different flows
@@ -971,6 +973,32 @@ python early:
                 flags - flags to remove from this event
             """
             self.flags &= ~flags
+
+        def logConditoinal(self, exception):
+            """
+            Logs failed event conditional check
+
+            IN:
+                exception - the error from this event
+
+            """
+            mas_utils.writelog("[ERROR]: Event with evl '{0}' failed conditional check: '{1}' with error: {2}\n".format(self.eventlabel, self.conditional, exception))
+            
+            self.conditional = None
+            self.loadflags = True
+
+            override_lockdb = self.rules.get("overrideunlockdb")
+
+            if override_lockdb is None:
+                override_lockdb = [
+                    "conditional",
+                    "action",
+                    "start_date",
+                    "end_date"
+                ]
+
+            for prop in override_lockdb:
+                Event.unlockInit(prop, self, self.eventlabel)
 
         @staticmethod
         def getSortPrompt(ev):
@@ -1646,7 +1674,6 @@ python early:
 
             return events
 
-
         @staticmethod
         def _checkEvent(ev, curr_time):
             """
@@ -1670,8 +1697,11 @@ python early:
                 return False
 
             # now check conditional, if needed
-            if ev.conditional is not None and not eval(ev.conditional):
-                return False
+            try:
+                if ev.conditional is not None and not eval(ev.conditional):
+                    return False
+            except Exception as e:
+                ev.logConditoinal(e)
 
             # check if valid action
             if ev.action not in Event.ACTION_MAP:

@@ -1719,12 +1719,10 @@ init python:
         if not renpy.has_label(event.eventlabel):
             raise EventException("'" + event.eventlabel + "' does NOT exist")
         if event.conditional is not None:
-            eval(event.conditional)
-#            try:
-#                if eval(event.conditional, globals()):
-#                    pass
-#            except:
-#                raise EventException("Syntax error in conditional statement for event '" + event.eventlabel + "'.")
+            try:
+                eval(event.conditional)
+            except Exception as e:
+                event.logConditoinal(e)
         # if should not skip calendar check and event has a start_date
         if not skipCalendar and type(event.start_date) is datetime.datetime:
             # add it to the calendar database
