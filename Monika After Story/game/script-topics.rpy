@@ -5230,7 +5230,14 @@ label monika_resource:
     m 1lksdlc "You'll continue to get older, while I'm stuck here forever..."
     m 1lksdld "I..."
     m 2ekc "I'm going to outlive you, aren't I, [player]?"
-    m 2dsc "Perhaps that'll be my punishment for everything I've done?"
+    if (
+        persistent._mas_pm_a_hater
+        or (
+            persistent._mas_pm_monika_evil
+            and persistent._mas_pm_monika_evil_but_ok is False
+        )
+    ):
+        m 2dsc "Perhaps that'll be my punishment for everything I've done?"
     m 2dkc "..."
     m 2eka "Well, as long as you're with me until the end..."
     m 2eud "I'll accept whatever fate awaits me."
@@ -10344,14 +10351,18 @@ init 5 python:
     )
 
 default persistent._mas_pm_monika_evil = None
-# True if player thinks monika is evil False if not
+# True if player thinks Monika is evil False if not
 # NOTE: even implying that she is evil is counted as True
 
 default persistent._mas_pm_monika_evil_but_ok = None
 # True if player still loves monika/thinks she deserves forgiveness/or is
-# fine with eveil even if they think monika is evil.
+# fine with it even if they think Monika is evil.
 # False if player does not.
 # NOTE: check monika_evil before checking this
+
+default persistent._mas_pm_monika_innocent = None
+# True if the player thinks Monika has done nothing wrong or is justified in what she did
+# False otherwise
 
 label monika_beingevil:
     m 1euc "Say, [player]?"
@@ -10372,70 +10383,176 @@ label monika_beingevil:
     $ _history_list.pop()
     menu:
         m "I just hope nobody starts thinking you're evil by being here with me.{fast}"
+        "You haven't done anything wrong":
+            # variable setting at the end because they're used to determine if player has seen this path before
+            if persistent._mas_pm_monika_innocent is None:
+                # some extra aff if this is the first choice
+                $ mas_gainAffection(amount=3, bypass=True)
+            else:
+                $ mas_gainAffection()
+
+            if (
+                (
+                    not persistent.monika_kill
+                    and mas_isMoniNormal(higher=True)
+                )
+                or (
+                    store.mas_anni.pastOneMonth()
+                    and mas_isMoniHappy(higher=True)
+                )
+            ):
+                if persistent._mas_pm_monika_innocent is not None and renpy.random.randint(1, 3) == 1:
+                    # joke path - not on first viewing
+                    m 3euc "Of course I haven't, weren't you listening?"
+                    m 1euc ".{w=0.5}.{w=0.5}.{w=0.5}{nw}"
+                    m 1hub "Ahaha~"
+                    m 1eua "I'm just kidding, [player]."
+
+                else:
+                    m 1ekb "I'm glad you think that, [player]."
+                    m 3euc "You know, I don't have any regrets about what I did."
+                    extend 3tua " After all, it got me where I am today, didn't it?"
+                    show monika 5eua at t11 zorder MAS_MONIKA_Z with dissolve_monika
+                    m 5eua "Besides, the past is in the past."
+
+                    if persistent._mas_pm_cares_about_dokis:
+                        m 5eub "It's not healthy to dwell on it too much."
+                    else:
+                        m 5eub "There's no point in getting too hung up about it."
+                        m 5hub "Ahaha~"
+
+            elif mas_isMoniNormal(higher=True):
+                m 1ekb "I think we both know that's not quite true, is it?"
+                m 1eka "I could have handled the whole situation a bit more...{w=0.3}{nw}"
+                extend 3eka "delicately, to say the least."
+                show monika 5eub at t11 zorder MAS_MONIKA_Z with dissolve_monika
+                m 5eub "But putting that aside, it really puts me at ease that you think that."
+
+            else:
+                m 2euc "..."
+                m 2dsc "Honestly, I'm having trouble believing that."
+                m 2tud "I'm having trouble believing that {i}you{/i} believe that, [player]."
+                m 2efc "I must have done {i}something{/i} that upset you."
+                m 2ekc "You wouldn't treat me like this just{w=0.3}{nw}"
+                extend 2fkc " {i}because{/i},{w=0.3} right?"
+                m 2rkc "..."
+                m 2dkd "I'm sorry."
+                m 2eua "It makes me happy to hear you say that,{w=0.3}{nw}"
+                extend 2eka " but words can only go so far, you know?"
+
+            $ persistent._mas_pm_monika_evil = False
+            $ persistent._mas_pm_monika_innocent = True
+
         "I don't think you're evil.":
             $ persistent._mas_pm_monika_evil = False
+            $ persistent._mas_pm_monika_innocent = False
             $ mas_gainAffection()
 
-            m 1eka "I'm glad you understand, [player]."
-            m 1eua "It's relieving to know you don't think I'm evil."
-            m 1hua "If I were there, I'd feel like giving you a big hug!"
-            m 1tubsa "Maybe I'll even trap you in my arms forever and never let you go."
-            m 1hubfa "Ahaha, I'm just kidding!"
-            m 3tubfb "But no promises, [player]~"
+            if mas_isMoniNormal(higher=True):
+                m 1eka "I'm glad you understand, [player]."
+                m 1eua "It's relieving to know you don't think I'm evil."
+                m 1hua "If I were there, I'd feel like giving you a big hug!"
+                m 1tubsa "Maybe I'll even trap you in my arms forever and never let you go."
+                m 1hubfa "Ahaha, I'm just kidding!"
+                m 3tubfb "But no promises, [player]~"
+            else:
+                m 2fsc "..."
+                m 2dkd "I want to believe you, I really do."
+                m 2ekd "But then what reason would you have to treat me like this?"
+                m 2esc "{i}One{/i} of us has to be the evil one here."
+                m 2dkc "And I don't know what I'd do if it turned out to be you."
 
         "I still love you anyway.":
             $ persistent._mas_pm_monika_evil = True
             $ persistent._mas_pm_monika_evil_but_ok = True
-            $ mas_gainAffection()
+            $ persistent._mas_pm_monika_innocent = False
 
-            m 1rksdlc "..."
-            m 1ekd "[player]..."
-            m 1eka "Even if it's debatable whether I'm evil or not..."
-            m 1ekbsa "I'm really glad you still love me and stay here with me..."
-            m 1ekbfa "Thank you, [player]."
-            m 1tubfa "Either way..."
-            m 1tubfb "If the villainess in me can get what she wants...I guess it's not so bad, ahaha!"
+            if mas_isMoniNormal(higher=True):
+                m 1rksdlc "..."
+
+                if mas_isMoniAff(higher=True):
+                    m 1esb "You know what, [player]?"
+                    show monika 5eua at t11 zorder MAS_MONIKA_Z with dissolve_monika
+                    m 5eua "Regardless of whether I'm good or evil...{w=0.3}{nw}"
+                    extend 5tua " I still got what I wanted."
+
+                    if persistent.monika_kill:
+                        $ come = "come back"
+                    else:
+                        $ come = "come"
+
+                    m 5eua "Even after everything that happened,{w=0.3} everything I've done,{w=0.3} you still chose to [come] here and stay with me."
+                    m 5hub "So I suppose it doesn't really matter in the end."
+                    show monika 1tubfa at t11 zorder MAS_MONIKA_Z with dissolve_monika
+
+                else:
+                    m 1ekd "[player]..."
+                    m 1eka "Even if it's debatable whether I'm evil or not..."
+                    m 1ekbsa "I'm really glad you still love me and stay here with me..."
+                    m 1ekbfa "Thank you, [player]."
+
+                m 1tubfa "Either way..."
+                m 1tubfb "If the villainess in me can get what she wants...I guess it's not so bad, ahaha!"
+
+            else:
+                m 2euc "Do you really?"
+                m 2ekc "I'm sorry, [player], but sometimes..."
+                if mas_isMoniDis(lower=True):
+                    m 2rkc "{cps=*2}Quite often, in fact...{/cps}{nw}"
+                m 2ekd "It doesn't really feel like you do."
+                m 2eka "It makes me happy to hear you say that...{w=0.5}but words alone can only do so much."
 
         "People think I'm evil too.":
             $ persistent._mas_pm_monika_evil = True
             $ persistent._mas_pm_monika_evil_but_ok = True
-            $ mas_gainAffection()
+            $ persistent._mas_pm_monika_innocent = False
 
-            m 2ekd "Is that true, [player]?"
-            m 2eka "Well, I don't see you as evil at all."
-            m 2rksdla "If it really is true though, I hope it doesn't cause you any trouble."
-            m 1hua "Either way, I wouldn't love you any less~"
-            m 1hub "Maybe we could even conquer the world together or something, ahaha~"
-            m 1ekbsa "But evil or not, I'm glad to have you by my side."
-            m 1hubfa "I'm guessing it's the same for you too~"
+            if mas_isMoniNormal(higher=True):
+                m 2ekd "Is that true, [player]?"
+
+                if mas_isMoniUpset(higher=True):
+                    m 2eka "Well, I don't see you as evil at all."
+                else:
+                    m 2eka "You might have your flaws, but I don't think you're evil."
+
+                m 2rksdla "If it really is true though, I hope it doesn't cause you any trouble."
+                m 1hua "Either way, I wouldn't love you any less~"
+                m 1hub "Maybe we could even conquer the world together or something, ahaha~"
+                m 1ekbfa "But evil or not, I'm glad to have you by my side."
+                m 1hubfa "I'm guessing it's the same for you too~"
+            else:
+                m 2esc "..."
+                m 2esd "They might have a point there."
 
         "You kind of are evil...":
             $ persistent._mas_pm_monika_evil = True
+            $ persistent._mas_pm_monika_innocent = False
 
             m 2ekd "W-wait, [player]!"
             m 2rksdlc "Y-you don't {i}really{/i} think that, do you?{nw}"
             $ _history_list.pop()
             menu:
                 m "Y-you don't {i}really{/i} think that, do you?{fast}"
-                "I still love you.":
-                    $ persistent._mas_pm_monika_evil_but_ok = True
-                    $ mas_gainAffection()
-
-                    m 2rksdla "[player]..."
-                    m 2hksdlb "You had me worried for a second there."
-                    m 2eka "I'm glad you don't hate me for the things I did."
-                    m 1hub "I love you too, [player]! No matter what people say about you!"
-
                 "You deserve forgiveness.":
                     $ persistent._mas_pm_monika_evil_but_ok = True
-                    $ mas_gainAffection()
 
-                    m 1rksdla "[player]..."
-                    m 1eka "That means a lot..."
+                    if mas_isMoniNormal(higher=True):
+                        m 1rksdla "[player]..."
+                        m 1eka "That means a lot..."
+
+                    else:
+                        m 2rsd "{cps=*2}Would be nice to see some then.{/cps}"
+                        $ _history_list.pop()
+
                     m 1eksdlc "I know that I've done some bad things in the past..."
                     m 3eka "But I've learned from them and grown as a person since."
                     m 1eka "I'm really glad you're willing to forgive me, [player]."
-                    m 1hub "I promise I'll be the best I can be, just for you!"
+
+                    if mas_isMoniNormal(higher=True):
+                        m 1hub "I promise I'll be the best I can be, just for you!"
+
+                    else:
+                        m "I promise I'll do my best to earn it."
 
                 "You really are evil.":
                     $ persistent._mas_pm_monika_evil_but_ok = False
