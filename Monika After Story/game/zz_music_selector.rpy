@@ -845,37 +845,21 @@ style music_menu_label_dark is game_menu_label_dark
 style music_menu_label_text is game_menu_label_text
 style music_menu_label_text_dark is game_menu_label_text_dark
 
-style music_menu_return_button is return_button:
-    xminimum 0
-    xmaximum 200
-    xfill False
+style music_menu_return_button is return_button
 
-style music_menu_return_button_dark is return_button:
-    xminimum 0
-    xmaximum 200
-    xfill False
+style music_menu_return_button_dark is return_button
 
 style music_menu_return_button_text is navigation_button_text
 
 style music_menu_return_button_text_dark is navigation_button_text_dark
 
-style music_menu_prev_button is return_button:
-    xminimum 0
-    xmaximum 135
-    xfill False
+style music_menu_prev_button is return_button
 
-style music_menu_prev_button_dark is return_button:
-    xminimum 0
-    xmaximum 135
-    xfill False
+style music_menu_prev_button_dark is return_button
 
-style music_menu_prev_button_text is navigation_button_text:
-    min_width 135
-    text_align 1.0
+style music_menu_prev_button_text is navigation_button_text
 
-style music_menu_prev_button_text_dark is navigation_button_text_dark:
-    min_width 135
-    text_align 1.0
+style music_menu_prev_button_text_dark is navigation_button_text_dark
 
 style music_menu_outer_frame is game_menu_outer_frame:
     background "mod_assets/music_menu.png"
@@ -883,11 +867,7 @@ style music_menu_outer_frame is game_menu_outer_frame:
 style music_menu_outer_frame_dark is game_menu_outer_frame_dark:
     background "mod_assets/music_menu_d.png"
 
-style music_menu_button is navigation_button:
-    size_group "navigation"
-    properties gui.button_properties("navigation_button")
-    hover_sound gui.hover_sound
-    activate_sound gui.activate_sound
+style music_menu_button is navigation_button
 
 style music_menu_button_text is navigation_button_text:
     properties gui.button_text_properties("navigation_button")
@@ -915,7 +895,7 @@ style music_menu_button_text_dark is navigation_button_text:
 screen music_menu(music_page, page_num=0, more_pages=False):
     modal True
 
-    $ import store.songs as songs
+    default tooltip = MASMouseFollowerTooltip(xmaximum=800, text_align=0.0)
 
     # logic to ensure Return works
     if songs.current_track is None:
@@ -954,8 +934,15 @@ screen music_menu(music_page, page_num=0, more_pages=False):
             spacing gui.navigation_spacing
 
             # wonderful loop so we can dynamically add songs
-            for name,song in music_page:
-                textbutton _(name) action Return(song)
+            for name, song, tt in music_page:
+                if tt:
+                    textbutton _(name):
+                        action Return(song)
+                        hovered tooltip.Action(tt)
+
+                else:
+                    textbutton _(name):
+                        action Return(song)
 
     vbox:
 
@@ -970,8 +957,9 @@ screen music_menu(music_page, page_num=0, more_pages=False):
                     action Return(page_num - 1)
 
             else:
-                textbutton _( " "):
+                textbutton _(""):
                     style "music_menu_prev_button"
+                    xsize 126
                     sensitive False
 
 #                if more_pages:
@@ -996,11 +984,12 @@ screen music_menu(music_page, page_num=0, more_pages=False):
 
     label "Music Menu"
 
+    add tooltip
+
 # sets locks and calls hte appropriate screen
 label display_music_menu:
     # set var so we can block multiple music menus
     python:
-        import store.songs as songs
         songs.menu_open = True
         song_selected = False
         curr_page = 0
@@ -1014,6 +1003,20 @@ label display_music_menu:
         if music_page is None:
             # this should never happen. Immediately quit with None
             return songs.NO_SONG
+
+        # Repack here to add tooltips
+        python:
+            music_page = list(music_page)
+            for id, data_tuple in enumerate(music_page):
+                name, song = data_tuple
+                if len(name) > 27:
+                    tooltip = name
+                    name = name[:25].strip() + "..."
+                else:
+                    tooltip = None
+
+                data_tuple = (name, song, tooltip)
+                music_page[id] = data_tuple
 
         # otherwise, continue formatting args
         $ next_page = (curr_page + 1) in songs.music_pages

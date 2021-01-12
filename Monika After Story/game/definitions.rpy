@@ -3531,6 +3531,108 @@ python early:
             except:
                 return ""
 
+init -999 python:
+    # This can't be in early because Tom put Tooltip and actions at -1500 init ¯\_(ツ)_/¯
+    class MASMouseFollowerTooltip(Tooltip, renpy.Displayable):
+        """
+        Tooltip that follows your mouse cursor
+        """
+        OUTLINES = []
+        OUTLINES_DARK = [(1, "#000", 0, 0)]
+
+        def __init__(self, default="", xoffset=15, yoffset=15, **kwargs):
+            """
+            Constructor
+            NOTE: this constructor is available at init 0+
+
+            IN:
+                default - string with the default value for this tooltip
+                    (Default: "")
+                xoffset - x offset for this tooltip
+                    (Default: 15)
+                yoffset - y offset for this tooltip
+                    (Default: 15)
+                kwargs - kwargs for the text disp
+            """
+            super(renpy.Displayable, self).__init__()
+
+            self.x = 0
+            self.y = 0
+            self.xoffset = xoffset
+            self.yoffset = yoffset
+            self._value = default
+            self._default = default
+
+            if "outlines" not in kwargs:
+                if not mas_globals.dark_mode:
+                    kwargs["outlines"] = MASMouseFollowerTooltip.OUTLINES
+                else:
+                    kwargs["outlines"] = MASMouseFollowerTooltip.OUTLINES_DARK
+
+            if "style" not in kwargs:
+                kwargs["style"] = "main_menu_version"
+
+            self._text = renpy.text.text.Text(default, **kwargs)
+
+        @property
+        def value(self):
+            """
+            Prop getter for value
+            """
+            return self._value
+
+        @value.setter
+        def value(self, value):
+            """
+            Prop setter for value
+            """
+            self._value = value
+            self._text.set_text(value)
+            renpy.redraw(self, 0)
+
+        @property
+        def default(self):
+            """
+            Prop getter for default
+            """
+            return self._default
+
+        @default.setter
+        def default(self, value):
+            """
+            Prop setter for default
+            """
+            self._default = value
+
+        def render(self, width, height, st, at):
+            """
+            Render method
+            """
+            text_render = renpy.render(self._text, width, height, st, at)
+            tw, th = text_render.get_size()
+            main_render = renpy.Render(tw, th)
+
+            main_render.blit(text_render, (self.x + self.xoffset, self.y + self.yoffset))
+            return main_render
+
+        def event(self, ev, x, y, st):
+            """
+            Event manager
+            """
+            if ev.type == pygame.MOUSEMOTION:
+                self.x = x
+                self.y = y
+                renpy.redraw(self, 0)
+
+        def visit(self):
+            """
+            Returns sub-displayables of this displayable
+
+            OUT:
+                list of sub-displayables for prediction
+            """
+            return [self._text]
+
 # special store that contains powerful (see damaging) functions
 init -1 python in _mas_root:
     import store

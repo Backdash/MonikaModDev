@@ -849,13 +849,11 @@ screen navigation():
             textbutton _("Return") action Return()
 
 style navigation_button is gui_button:
-    size_group "navigation"
     properties gui.button_properties("navigation_button")
     hover_sound gui.hover_sound
     activate_sound gui.activate_sound
 
 style navigation_button_dark is gui_button:
-    size_group "navigation"
     properties gui.button_properties("navigation_button_dark")
     hover_sound gui.hover_sound
     activate_sound gui.activate_sound
