@@ -379,6 +379,25 @@ label v0_11_9_4(version="v0_11_9_4"):
         first_sesh = mas_getFirstSesh()
         if first_sesh.month == 2 and first_sesh.day == 29:
             mas_anni.reset_annis(first_sesh)
+
+        # 1/6 date fix
+        local_now = mas_utils.utc_to_local(datetime.datetime.utcnow())
+        if ( # NOTE: if someone updates within 1/1-1/6, we cannot and should
+            # not reset their nye vars. It's just not possible to do
+                not mas_isInDateRange(
+                    local_now.date(),
+                    datetime.date(2021, 1, 1), 
+                    datetime.date(2021, 1, 6),
+                    end_inclusive=True
+                )
+                # also account for today being nye
+                and local_now.month != 12
+                and local_now.day != 31
+        ):
+            persistent._mas_nye_spent_nye = False
+
+        # TODO: check checkout times and fix prevoius year data
+
     return
 
 # 0.11.9.3
