@@ -1,727 +1,617 @@
-init python in mas_connect4:
 
-    import copy
-    
-    CONNECT4_AI = "Monika"
-    
-    CONNECT4_PLAYER = renpy.game.persistent.playername
-    
-    CONNECT4_COLUMN_EMPTY = [0,0,0,0,0,0]
-    
-    CONNECT4_BOARD_EMPTY = [copy.copy(CONNECT4_COLUMN_EMPTY),copy.copy(CONNECT4_COLUMN_EMPTY),copy.copy(CONNECT4_COLUMN_EMPTY),copy.copy(CONNECT4_COLUMN_EMPTY),copy.copy(CONNECT4_COLUMN_EMPTY),copy.copy(CONNECT4_COLUMN_EMPTY),copy.copy(CONNECT4_COLUMN_EMPTY)]
-
-    connect4_board = copy.deepcopy(CONNECT4_BOARD_EMPTY)
-    
-    connect4_game_over = False
-    
-    connect4_win = False
-    
-    connect4_winner = "draw"
-    
-    connect4_turn = CONNECT4_AI
-    
-    connect4_turn_moved = False
-    
-    connect4_turn_invalid = False
-    
-    connect4_is_board_full = []
-    
-    
-    
-    def start_game():
-        """
-        Sets variables to it's default values at the beginning of game.
-        """
-        global connect4_board
-        global connect4_win
-        global connect4_winner
-        global connect4_game_over
-        connect4_board = copy.deepcopy(CONNECT4_BOARD_EMPTY)
-        connect4_win = False
-        connect4_winner = "draw"
-        connect4_game_over = False
-    
-    
-    
-    def new_turn():
-        """
-        Sets variables to it's default values at the start of turn.
-        """
-        global connect4_is_board_full
-        global connect4_turn_moved
-        global connect4_turn_invalid
-        connect4_is_board_full = []
-        connect4_turn_moved = False
-        connect4_turn_invalid = False
-    
-    
-    
-    def check_board_full():
-        """
-        Checks whether or not the board is full.
-        Ends the game if there are no more moves available.
-        """
-        for line_up in connect4_board:
-            for i in line_up:
-                connect4_is_board_full.append(i)
-        if 0 not in connect4_is_board_full:
-            game_over()
-    
-    
-    
-    def check_overflow_move():
-        """
-        Checks if a move is made in a full column.
-        If move is valid, changes turn to the other player,
-        else, does not change the player turn until a valid move is made
-        (Ideally this should be managed by the screen, having its button insensitive instead).
-        """
-        global connect4_turn_invalid
-        global connect4_turn
-        if connect4_turn_moved:
-            connect4_turn = [CONNECT4_PLAYER,CONNECT4_AI][connect4_turn == CONNECT4_PLAYER]
-        else:
-            connect4_turn_invalid = True
-    
-        
-    
-    def check_connect(line_up):
-        """
-        Checks if there are four same color checker pins in a list.
-        Calls win_set(winner) if found.
-        
-        line_up inserts a list (the state of cells in the board; 1 = AI's pin, 2 = player's pin, 0 = empty).
-        """
-        four = []
-        for i in range(len(line_up)):
-            if i+4 > len(line_up):
-                break
-            four = line_up[i:i+4]
-            if four == [1,1,1,1] or four == [2,2,2,2]:
-                win_set(four[0])
-    
-    
-    
-    def win_set(winner):
-        """
-        Sets connect4_winner variable based on the parameter.
-        
-        winner inserts integer that corresponds to either player or AI (1 or 2).
-        """
-        global connect4_win
-        global connect4_winner
-        connect4_win = True
-        if winner == 2:
-            connect4_winner = CONNECT4_PLAYER
-        else:
-            connect4_winner = CONNECT4_AI
-    
-    
-    
-    def examine_vertical():
-        """
-        Examines the board vertically using check_connect(line_up).
-        """
-        board_form = connect4_board
-        for line_up in board_form:
-            check_connect(line_up)
-            if connect4_win == True:
-                game_over()
-                break
-    
-    
-    
-    def examine_horizontal():
-        """
-        Examines the board horizontally using check_connect(line_up).
-        """
-        board_form = [[row[i] for row in connect4_board] for i in range(len(connect4_board[0]))]
-        for line_up in board_form:
-            check_connect(line_up)
-            if connect4_win == True:
-                game_over()
-                break
-    
-    
-    
-    def examine_diagonal_ltr():
-        """
-        Examines the board diagonally using check_connect(line_up).
-        There are two functions to manage the two diagonals (ltr ans rtl).
-        """
-        board_form = []
-        
-        item_length = 1
-        item_sum = len(connect4_board[0])
-        for i in range(item_sum):
-            item = []
-            for i2 in range(item_length):
-                item.append(connect4_board[(len(connect4_board)-1)-i2][(item_length-1)-i2])
-            board_form.append(item)
-            item_length += 1
-        
-        item_length = 6
-        item_sum = len(connect4_board) - 1
-        for i in range(item_sum):
-            item = []
-            for i2 in range(item_length):
-                item.append(connect4_board[(item_length-1)-i2][(len(connect4_board[0])-1)-i2])
-            board_form.append(item)
-            item_length -= 1
-        
-        for line_up in board_form:
-            check_connect(line_up)
-            if connect4_win == True:
-                game_over()
-                break
-    
-    
-    
-    def examine_diagonal_rtl():
-        """
-        Examines the board diagonally using check_connect(line_up).
-        There are two functions to manage the two diagonals (ltr ans rtl).
-        """
-        board_form = []
-        
-        item_length = 1
-        item_sum = len(connect4_board[0])
-        for i in range(item_sum):
-            item = []
-            for i2 in range(item_length):
-                item.append(connect4_board[(len(connect4_board)-1)-i2][(len(connect4_board[0])-1)-(item_length-1)+i2])
-            board_form.append(item)
-            item_length += 1
             
-        item_length = 6
-        item_sum = len(connect4_board) - 1
-        for i in range(item_sum):
-            item = []
-            for i2 in range(item_length):
-                item.append(connect4_board[(len(connect4_board)-2)-i-i2][0+i2])
-            board_form.append(item)
-            item_length -= 1
+            
+            
+init python:
+    import pygame
+    import re
+    
+    class MASConnect4Displayable(renpy.Displayable):
+        # pygame events
+        MOUSE_EVENTS = (
+            pygame.MOUSEMOTION,
+            pygame.MOUSEBUTTONUP,
+            pygame.MOUSEBUTTONDOWN
+        )
         
-        for line_up in board_form:
-            check_connect(line_up)
-            if connect4_win == True:
-                game_over()
-                break
-    
-    
-    
-    def game_over():
-        """
-        The game over function. calls the corresponding game over labels (win or draw).
-        """
-        global connect4_game_over
-        connect4_game_over = True
-        renpy.show_screen("connect4_static")
-    
-    
-    
-    def col_fill(col,turn):
-        """
-        Makes a move and fills the board.
+        # variables to indicate Monika and player's pins/turn
+        AI = 1
+        PLAYER = 2
         
-        col inserts which column to fill (one int of 0 to 6).
-        turn inserts who makes the move (int of 1 or 0).
-        """
-        global connect4_turn_moved
-        if turn is CONNECT4_PLAYER:
-            checker = 2
-        else:
-            checker = 1
-        for i in range(len(connect4_board[col])):
-            if connect4_board[col][i] == 0:
-                connect4_board[col][i] = checker
-                connect4_turn_moved = True
-                break
+        # indicate the board's rows columns
+        CEL_COL = 7
+        CEL_ROW = 6
+        
+        # the  board's dimensions
+        BOARD_BORDER_WIDTH = 15
+        BOARD_BORDER_HEIGHT = 15
+        CEL_WIDTH = 60
+        CEL_HEIGHT = 60
+        BOARD_WIDTH = BOARD_BORDER_WIDTH * 2 + CEL_WIDTH * CEL_COL
+        BOARD_HEIGHT = BOARD_BORDER_HEIGHT * 2 + CEL_HEIGHT * CEL_ROW
+        
+        # offset for board's position
+        DISP_X_OFFSET = 200
+        DISP_Y_OFFSET = 200
+        
+        BOARD_X_POS = int(1280 - BOARD_WIDTH - DISP_X_OFFSET)
+        BOARD_Y_POS = int(720 - BOARD_HEIGHT - DISP_Y_OFFSET)
+        
+        # position of the upper left most cel
+        CEL_BASE_X_POS = BOARD_X_POS + BOARD_BORDER_WIDTH
+        CEL_BASE_Y_POS = BOARD_Y_POS + BOARD_BORDER_HEIGHT
+        
+        # dimensions of buttons the player use to drop pins on their turn (AKA col button)
+        COL_BUTTON_WIDTH = 60
+        COL_BUTTON_HEIGHT = 53
+        COL_BUTTON_X_SPACING = 5
+        COL_BUTTON_Y_SPACING = 7
+        COL_BUTTON_X_DISTANCE = int(COL_BUTTON_WIDTH + COL_BUTTON_X_SPACING)
+        
+        # menu button dimensions
+        BUTTON_WIDTH = 120
+        BUTTON_HEIGHT = 35
+        BUTTON_X_SPACING = 10
+        BUTTON_Y_SPACING = 10
+        BUTTON_Y_DISTANCE = int(BUTTON_HEIGHT + BUTTON_Y_SPACING)
+        
+        # col button position
+        COL_BUTTON_X = int(BOARD_X_POS + BOARD_WIDTH / 2 - COL_BUTTON_WIDTH / 2)
+        COL_BUTTON_Y = int(BOARD_Y_POS - COL_BUTTON_HEIGHT - COL_BUTTON_Y_SPACING)
+        
+        # menu button position
+        BUTTON_X = BOARD_X_POS + BOARD_WIDTH + BUTTON_X_SPACING
+        BUTTON_Y = BOARD_Y_POS + BOARD_HEIGHT - BUTTON_HEIGHT
+        
+        # images definition
+        AI_IMAGE = Image("mod_assets/connect4/monika_pin.png")
+        PLAYER_IMAGE = Image("mod_assets/connect4/player_pin.png")
+        BOARD_IMAGE = Image("mod_assets/connect4/connect4_board.png")
+        WIN_TILE_IMAGE = Image("mod_assets/connect4/win_tile.png")
+        COL_BUTTON_IDLE_IMAGE = Image("mod_assets/connect4/arrow_down_idle.png")
+        COL_BUTTON_HOVER_IMAGE = Image("mod_assets/connect4/arrow_down_hover.png")
+        COL_BUTTON_INSENSITIVE_IMAGE = Image("mod_assets/connect4/arrow_down_insensitive.png")
+        
+        def __init__(self):
+            # prepare the Displayable
+            super(MASConnect4Displayable, self).__init__()
+            
+            # init the variables
+            self.is_game_over = False
+            self.quit_game = False
+            self.turn = renpy.random.choice([self.AI, self.PLAYER])
+            self.board = dict()
+            self.full_col = set()
+            self.turn_move_success = False
+            self.winner = False
+            self.win_tiles = set()
+            
+            # init col buttons
+            self._col_buttons = list()
+            for i in range(self.CEL_COL):
+                button = MASButtonDisplayable(
+                    Null(),
+                    Null(),
+                    Null(),
+                    Frame(self.COL_BUTTON_IDLE_IMAGE, Borders(0, 0, 0, 0)),
+                    Frame(self.COL_BUTTON_HOVER_IMAGE, Borders(0, 0, 0, 0)),
+                    Frame(self.COL_BUTTON_INSENSITIVE_IMAGE, Borders(0, 0, 0, 0)),
+                    MASConnect4Displayable.COL_BUTTON_X + MASConnect4Displayable.COL_BUTTON_X_DISTANCE * (i - 3),
+                    MASConnect4Displayable.COL_BUTTON_Y,
+                    MASConnect4Displayable.COL_BUTTON_WIDTH,
+                    MASConnect4Displayable.COL_BUTTON_HEIGHT,
+                    hover_sound=gui.hover_sound,
+                    activate_sound=gui.activate_sound,
+                    return_value=i
+                )
+                self._col_buttons.append(button)
                 
+            # init menu buttons
+            self._button_quit = MASButtonDisplayable.create_stb(
+                _("Quit"),
+                True,
+                MASConnect4Displayable.BUTTON_X,
+                MASConnect4Displayable.BUTTON_Y,
+                MASConnect4Displayable.BUTTON_WIDTH,
+                MASConnect4Displayable.BUTTON_HEIGHT,
+                hover_sound=gui.hover_sound,
+                activate_sound=gui.activate_sound
+            )
                 
-                
-    def examine_board():
-        """
-        Calls all the examine functions together (ideally, the order should be random).
-        """
-        examine_diagonal_ltr()
-        examine_diagonal_rtl()
-        examine_horizontal()
-        examine_vertical()
-        
-        
-        
-    
-    # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX AI CODES XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    
-    
-    def check_ai_win(line_up):
-        """
-        This code works kind of like check_connect(line_up),
-        but instead of 4 of the same pins, it checks for 3 AI pins.
-        
-        line_up inserts a list.
-        
-        returns a list that corresponds at which index in line_up is found an empty cell among 3 AI pins
-        """
-        four = []
-        winning_line_up = []
-        for i in range(len(line_up)):
-            if i+4 > len(line_up):
-                break
-            four = line_up[i:i+4]
-            if four.count(1) == 3 and 2 not in four:
-                winning_line_up.append(i+four.index(0))
-        winning_line_up = list(dict.fromkeys(winning_line_up))
-        return winning_line_up
-    
-    
-    def check_player_win(line_up):
-        """
-        This code works kind of like check_connect(line_up),
-        but instead of 4 of the same pins, it checks for 3 player pins.
-        
-        line_up inserts a list.
-        
-        returns a list that corresponds at which index in line_up is found an empty cell among 3 player pins
-        """
-        four = []
-        winning_line_up = []
-        for i in range(len(line_up)):
-            if i+4 > len(line_up):
-                break
-            four = line_up[i:i+4]
-            if four.count(2) == 3 and 1 not in four:
-                winning_line_up.append(i+four.index(0))
-        winning_line_up = list(dict.fromkeys(winning_line_up))
-        return winning_line_up
-        
-        
-        
-    def get_scan_diagonal_ltr(check_function):
-        """
-        This function is part of get_ai_win_cels() and get_player_win_cels() and is called there.
-        
-        Manages ltr diagonal.
-        """
-        board_form = []
-        item_length = 1
-        item_sum = len(connect4_board[0])
-        for i in range(item_sum):
-            item = []
-            for i2 in range(item_length):
-                item.append(connect4_board[(len(connect4_board)-1)-i2][(item_length-1)-i2])
-            board_form.append(item)
-            item_length += 1
-        item_length = 6
-        item_sum = len(connect4_board) - 1
-        for i in range(item_sum):
-            item = []
-            for i2 in range(item_length):
-                item.append(connect4_board[(item_length-1)-i2][(len(connect4_board[0])-1)-i2])
-            board_form.append(item)
-            item_length -= 1
-        
-        scan_diagonal_ltr = [[],[],[],[],[],[],[],[],[],[],[],[]]
-        line_up_number = 0
-        for line_up in board_form:
-            for i in range(len(check_function(line_up))):
-                scan_diagonal_ltr[line_up_number].append(check_function(line_up)[i])
-            line_up_number += 1
-        
-        return scan_diagonal_ltr
-        
-        
-        
-    def get_scan_diagonal_ltr_board_form(scan_diagonal_ltr):
-        """
-        This function is part of get_ai_win_cels() and get_player_win_cels() and is called there.
-        
-        Manages ltr diagonal.
-        """
-        board_form = [[],[],[],[],[],[],[]]
-        for i in range(6):
-            for i2 in range(len(scan_diagonal_ltr[i])):
-                board_form[6-scan_diagonal_ltr[i][i2]].append(i-scan_diagonal_ltr[i][i2])
-        line_up_number = 0
-        for i in range(6,12):
-            for i2 in range(len(scan_diagonal_ltr[i])):
-                board_form[5-line_up_number-scan_diagonal_ltr[i][i2]].append(5-scan_diagonal_ltr[i][i2])
-            line_up_number += 1
+            self._button_done = MASButtonDisplayable.create_stb(
+                _("Done"),
+                False,
+                MASConnect4Displayable.BUTTON_X,
+                MASConnect4Displayable.BUTTON_Y,
+                MASConnect4Displayable.BUTTON_WIDTH,
+                MASConnect4Displayable.BUTTON_HEIGHT,
+                hover_sound=gui.hover_sound,
+                activate_sound=gui.activate_sound
+            )
             
-        return board_form
-        
-        
-        
-    def get_scan_diagonal_rtl(check_function):
-        """
-        This function is part of get_ai_win_cels() and get_player_win_cels() and is called there.
-        
-        Manages rtl diagonal.
-        """
-        board_form = []
-        item_length = 1
-        item_sum = len(connect4_board[0])
-        for i in range(item_sum):
-            item = []
-            for i2 in range(item_length):
-                item.append(connect4_board[(len(connect4_board)-1)-i2][(len(connect4_board[0])-1)-(item_length-1)+i2])
-            board_form.append(item)
-            item_length += 1
-        item_length = 6
-        item_sum = len(connect4_board) - 1
-        for i in range(item_sum):
-            item = []
-            for i2 in range(item_length):
-                item.append(connect4_board[(len(connect4_board)-2)-i-i2][0+i2])
-            board_form.append(item)
-            item_length -= 1
+            self._visible_buttons = [
+                self._button_quit
+            ]
             
-        scan_diagonal_rtl = [[],[],[],[],[],[],[],[],[],[],[],[]]
-        line_up_number = 0
-        for line_up in board_form:
-            for i in range(len(check_function(line_up))):
-                scan_diagonal_rtl[line_up_number].append(check_function(line_up)[i])
-            line_up_number += 1
+            self._visible_buttons_winner = [
+                self._button_done
+            ]
+        
+        def render(self, width, height, st, at):
+            """
+            This function shows the board into the screen
+            """
+            render = renpy.Render(width, height)
             
-        return scan_diagonal_rtl
-        
-        
-        
-    def get_scan_diagonal_rtl_board_form(scan_diagonal_rtl):
-        """
-        This function is part of get_ai_win_cels() and get_player_win_cels() and is called there.
-        
-        Manages rtl diagonal.
-        """
-        board_form = [[],[],[],[],[],[],[]]
-        line_up_number = 5
-        for i in range(6):
-            for i2 in range(len(scan_diagonal_rtl[i])):
-                board_form[6-scan_diagonal_rtl[i][i2]].append(line_up_number+scan_diagonal_rtl[i][i2])
-            line_up_number -= 1
-        line_up_number = 0
-        for i in range(6,12):
-            for i2 in range(len(scan_diagonal_rtl[i])):
-                board_form[5-line_up_number-scan_diagonal_rtl[i][i2]].append(scan_diagonal_rtl[i][i2])
-            line_up_number += 1
+            # prepare the board as rendererr
+            board = renpy.render(MASConnect4Displayable.BOARD_IMAGE, 1280, 720, st , at)
             
-        return board_form
-        
-        
-        
-    # AI WIN SCAN =======================================================================================================
-        
-        
-    def get_ai_win_cels():
-        """
-        *This function is pretty big.* (even has a mark of its own ^)
-        It gives a collection of cells that are 1 pin away for the AI to win.
-        Manages to do it vertically, horizontally, and diagonally (two diagonals).
-        
-        The diagonals are a little too long for me to comfortably put here too, so they are managed in another function
-        (they are same functions used in get_player_win_cels()).
-        
-        returns a 2D list. With the length of 7 (width of board) and contains lists filled with indexes of those possible wins in the column.
-        """
-        ai_win_cels = [[],[],[],[],[],[],[]]
-        
-        
-        # Add vertical winning cels ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        board_form = connect4_board
-        
-        scan_vertical = [[],[],[],[],[],[],[]]
-        line_up_number = 0
-        for line_up in board_form:
-            for i in range(len(check_ai_win(line_up))):
-                scan_vertical[line_up_number].append(check_ai_win(line_up)[i])
-            line_up_number += 1
+            # prepare winning tile highlight as renderer
+            win_tile = renpy.render(MASConnect4Displayable.WIN_TILE_IMAGE, 1280, 720, st , at)
             
-        line_up_number = 0
-        for line_up in scan_vertical:
-            for i in line_up:
-                ai_win_cels[line_up_number].append(i)
-            line_up_number += 1
-        
-        
-        # Add horizontal winning cels ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        board_form = [[row[i] for row in connect4_board] for i in range(len(connect4_board[0]))]
-        
-        scan_horizontal = [[],[],[],[],[],[]]
-        line_up_number = 0
-        for line_up in board_form:
-            for i in range(len(check_ai_win(line_up))):
-                scan_horizontal[line_up_number].append(check_ai_win(line_up)[i])
-            line_up_number += 1
-        
-        board_form = [[],[],[],[],[],[],[]]
-        for i in range(6):
-            for i2 in scan_horizontal[i]:
-                board_form[i2].append(i)
-        scan_horizontal = board_form
-        
-        line_up_number = 0
-        for line_up in scan_horizontal:
-            for i in line_up:
-                ai_win_cels[line_up_number].append(i)
-            line_up_number += 1
+            # prepare the pins as renderer
+            ai_pin = renpy.render(MASConnect4Displayable.AI_IMAGE, 1280, 720, st , at)
+            player_pin = renpy.render(MASConnect4Displayable.PLAYER_IMAGE, 1280, 720, st , at)
             
-        
-        # Add diagonal (ltr) winning cels ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        scan_diagonal_ltr = get_scan_diagonal_ltr_board_form(get_scan_diagonal_ltr(check_ai_win))
-        
-        line_up_number = 0
-        for line_up in scan_diagonal_ltr:
-            for i in line_up:
-                ai_win_cels[line_up_number].append(i)
-            line_up_number += 1
+            # prepare col buttons as renderers
+            # (they look the same, but their return values are different on init, thus, they are put in a list)
+            col_buttons = [
+                (b.render(width, height, st, at), b.xpos, b.ypos)
+                for b in self._col_buttons
+            ]
             
-        
-        # Add diagonal (rtl) winning cels ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        scan_diagonal_rtl = get_scan_diagonal_rtl_board_form(get_scan_diagonal_rtl(check_ai_win))
-        
-        line_up_number = 0
-        for line_up in scan_diagonal_rtl:
-            for i in line_up:
-                ai_win_cels[line_up_number].append(i)
-            line_up_number += 1
+            # prepare menu buttons as renderers
+            visible_buttons = list()
+            if self.is_game_over:
+                visible_buttons = [
+                    (b.render(width, height, st, at), b.xpos, b.ypos)
+                    for b in self._visible_buttons_winner
+                ]
+            else:
+                visible_buttons = [
+                    (b.render(width, height, st, at), b.xpos, b.ypos)
+                    for b in self._visible_buttons
+                ]
             
+            # debugging stuff
+            # show = re.sub('[{}"]', '', str(self.board)) if self.board else "empty"
+            # render.blit(
+                # renpy.render(Text(show), 1280, 720, st , at), 
+                # (0, 0)
+            # )
             
-        return ai_win_cels
-        
-        
-        
-    # PLAYER WIN SCAN =======================================================================================================
-        
-        
-    def get_player_win_cels():
-        """
-        *This function is pretty big.* (even has a mark of its own ^)
-        It gives a collection of cells that are 1 pin away for the player to win.
-        Manages to do it vertically, horizontally, and diagonally (two diagonals).
-        
-        The diagonals are a little too long for me to comfortably put here too, so they are managed in another function
-        (they are same functions used in get_ai_win_cels()).
-        
-        returns a 2D list. With the length of 7 (width of board) and contains lists filled with indexes of those possible wins in the column.
-        """
-        player_win_cels = [[],[],[],[],[],[],[]]
-        
-        
-        # Add vertical winning cels ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        board_form = connect4_board
-        
-        scan_vertical = [[],[],[],[],[],[],[]]
-        line_up_number = 0
-        for line_up in board_form:
-            for i in range(len(check_player_win(line_up))):
-                scan_vertical[line_up_number].append(check_player_win(line_up)[i])
-            line_up_number += 1
+            # show = "game over = " + str(self.is_game_over)
+            # render.blit(
+                # renpy.render(Text(show), 1280, 720, st , at), 
+                # (0, 50)
+            # )
             
-        line_up_number = 0
-        for line_up in scan_vertical:
-            for i in line_up:
-                player_win_cels[line_up_number].append(i)
-            line_up_number += 1
-        
-        
-        # Add horizontal winning cels ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        board_form = [[row[i] for row in connect4_board] for i in range(len(connect4_board[0]))]
-        
-        scan_horizontal = [[],[],[],[],[],[]]
-        line_up_number = 0
-        for line_up in board_form:
-            for i in range(len(check_player_win(line_up))):
-                scan_horizontal[line_up_number].append(check_player_win(line_up)[i])
-            line_up_number += 1
-        
-        board_form = [[],[],[],[],[],[],[]]
-        for i in range(6):
-            for i2 in scan_horizontal[i]:
-                board_form[i2].append(i)
-        scan_horizontal = board_form
-        
-        line_up_number = 0
-        for line_up in scan_horizontal:
-            for i in line_up:
-                player_win_cels[line_up_number].append(i)
-            line_up_number += 1
+            # show = "turn = " + str(self.turn)
+            # render.blit(
+                # renpy.render(Text(show), 1280, 720, st , at), 
+                # (0, 75)
+            # )
             
-        
-        # Add diagonal (ltr) winning cels ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        scan_diagonal_ltr = get_scan_diagonal_ltr_board_form(get_scan_diagonal_ltr(check_player_win))
-        
-        line_up_number = 0
-        for line_up in scan_diagonal_ltr:
-            for i in line_up:
-                player_win_cels[line_up_number].append(i)
-            line_up_number += 1
+            # show = "move success = " + str(self.turn_move_success)
+            # render.blit(
+                # renpy.render(Text(show), 1280, 720, st , at), 
+                # (0, 100)
+            # )
             
-        
-        # Add diagonal (rtl) winning cels ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        scan_diagonal_rtl = get_scan_diagonal_rtl_board_form(get_scan_diagonal_rtl(check_player_win))
-        
-        line_up_number = 0
-        for line_up in scan_diagonal_rtl:
-            for i in line_up:
-                player_win_cels[line_up_number].append(i)
-            line_up_number += 1
+            # show = "win tiles =" + " ".join(self.win_tiles)
+            # render.blit(
+                # renpy.render(Text(show), 1280, 720, st , at), 
+                # (0, 125)
+            # )
             
+            # draw the board
+            render.blit(board, (MASConnect4Displayable.BOARD_X_POS, MASConnect4Displayable.BOARD_Y_POS))
             
-        return player_win_cels
-        
-        
-        
-    def ai_move():
-        """
-        Makes a move based on get_player_win_cels() and get_ai_win_cels().
-        If move based on those are not possible, makes a random column move.
-        """
-        moved = False
-        for i in range(len(get_ai_win_cels())):
-            if get_ai_win_cels()[i] is not []:
-                for i2 in get_ai_win_cels()[i]:
-                    if i2 == 0:
-                        col_fill(i,CONNECT4_AI)
-                        moved = True
-                    elif connect4_board[i][i2-1] is not 0:
-                        col_fill(i,CONNECT4_AI)
-                        moved = True
-                    if moved: break
-            if moved: break 
+            # draw winning tile highlights
+            for t in self.win_tiles:
+                y, x = (int(t[0]) * MASConnect4Displayable.CEL_WIDTH, int(t[1]) * MASConnect4Displayable.CEL_HEIGHT)
+                render.blit(win_tile, (MASConnect4Displayable.CEL_BASE_X_POS + x, MASConnect4Displayable.CEL_BASE_Y_POS + y))
+            
+            # draw the pins
+            for key, pin in self.board.items():
+                y, x = (int(key[0]) * MASConnect4Displayable.CEL_WIDTH, int(key[1]) * MASConnect4Displayable.CEL_HEIGHT)
+                if pin == self.AI:
+                    render.blit(ai_pin, (MASConnect4Displayable.CEL_BASE_X_POS + x, MASConnect4Displayable.CEL_BASE_Y_POS + y))
+                elif pin == self.PLAYER:
+                    render.blit(player_pin, (MASConnect4Displayable.CEL_BASE_X_POS + x, MASConnect4Displayable.CEL_BASE_Y_POS + y))
                     
-        for i in range(len(get_player_win_cels())):
-            if get_player_win_cels()[i] is not []:
-                for i2 in get_player_win_cels()[i]:
-                    if i2 == 0:
-                        col_fill(i,CONNECT4_AI)
-                        moved = True
-                    elif connect4_board[i][i2-1] is not 0:
-                        col_fill(i,CONNECT4_AI)
-                        moved = True
-                    if moved: break
-            if moved: break 
+            # draw col buttons
+            for b in col_buttons:
+                render.blit(b[0], (b[1], b[2]))
                 
-        if not moved:
-            col_fill(renpy.random.randint(0,6),CONNECT4_AI)
+            # draw menu buttons
+            for b in visible_buttons:
+                render.blit(b[0], (b[1], b[2]))
             
+            renpy.redraw(self, 0)
+            return render
             
+        def set_button_states(self):
+            """
+            Disable/enable buttons according to other variables
+            """
+            if not self.is_game_over and self.turn == self.PLAYER:
             
-screen connect4:
-    modal True
-    frame:
-        xalign 0.5
-        yalign 0.5
-        
-        vbox:
-            vbox:
-                xalign 0.5
-                yalign 0.5
-                grid 7 1:
-                    spacing 10
-                    for i in range(7):
-                        frame:
-                            imagebutton:
-                                id "checker_in_" + str(i)
-                                auto "mod_assets/connect4/images/arrow_down_%s.png"
-                                action [Return(i)]
+                for b in range(len(self._col_buttons)):
+                    if self.board.get(self.g_k(0, b)) == None:
+                        self._col_buttons[b].enable()
+                    else:
+                        self._col_buttons[b].disable()
+                
+                self._button_quit.enable()
+                
+                self._button_done.disable()
+                
+            else:
             
-            frame:
-                xalign 0.5
-                yalign 0.5
-                grid 7 6:
-                    transpose True
-                    for i in range(7):
-                        for i2 in range(5,-1,-1):
-                            if "012".find(str(mas_connect4.connect4_board[i][i2])) == -1:
-                                add "mod_assets/connect4/images/connect4_cel_g.png"
-                            else:
-                                add "mod_assets/connect4/images/connect4_cel_" + str(mas_connect4.connect4_board[i][i2]) + ".png"
+                for b in self._col_buttons:
+                    b.disable()
+                
+                self._button_quit.disable()
+                
+                self._button_done.enable()
+            
+        def event(self, ev, x, y, st):
+            """
+            Function for events. Is called internally by renpy on its own (i guess)
+            """
+            if ev.type in self.MOUSE_EVENTS:
+                ret_value = None
+                for b in self._col_buttons:
+                    if type(b.event(ev, x, y, st)) is int:
+                        ret_value = b.event(ev, x, y, st)
+                        self.col_fill(ret_value, self.turn)
+                        return "mouse_button_up"
+                
+                if self._visible_buttons or self._visible_buttons_winner:
+                    ret_value = self.check_buttons(ev, x, y, st)
 
+                if ret_value is not None:
+                    return ret_value
+                    
+            return None
             
-screen connect4_static:
-    frame:
-        xalign 0.5
-        yalign 0.5
+        def check_buttons(self, ev, x, y, st):
+            """
+            Checks if menu buttons are pressed
+            """
+            if self.is_game_over:
+                if self._button_done.event(ev, x, y, st):
+                    self.quit_game = True
+                    return (self.winner, 0)
+                    
+            elif self.turn == self.PLAYER:
+                if self._button_quit.event(ev, x, y, st):
+                    self.quit_game = True
+                    return (self.winner, 1)
+
+        def show(self):
+            """
+            Shows this displayable
+            """
+            ui.layer("minigames")
+            ui.implicit_add(self)
+            ui.close()
+
+        def hide(self):
+            """
+            Hides this displayable
+            """
+            ui.layer("minigames")
+            ui.remove(self)
+            ui.close()
+
+        def g_k(self, i, j):
+            """
+            g_k stands for "get key" (is meant to be short), used to get the board's cel
+            
+            INPUT: two integers that refers to a cel's coordinates on the board
+            
+            OUTPUT: a string, the cel's coordinate on the board
+            """
+            return str(i) + str(j)
+            
+        def turn_switch(self):
+            """
+            Switches turn (obviously)
+            """
+            self.turn = self.PLAYER if self.turn == self.AI else self.AI
+            self.turn_move_success = False
+                
+        # GET LINE UP FUNCTIONS START
+        # These functions return a LIST of LINE UPS
+        # a LINE UP is a LIST of the BOARD'S (KEY, VALUE) in tuple pair
+        # didn't use dict() because it's unordered and the order needs to be preserved
         
-        vbox:
-            vbox:
-                xalign 0.5
-                yalign 0.5
-                grid 7 1:
-                    spacing 10
-                    for i in range(7):
-                        frame:
-                            imagebutton:
-                                id "checker_in_" + str(i)
-                                auto "mod_assets/connect4/images/arrow_down_%s.png"
-                                sensitive False
+        def get_vertical(self):
+            """
+            Returns vertical line ups
+            """
+            board_form = [[(self.g_k(j, i), self.board.get(self.g_k(j, i))) for j in range(self.CEL_ROW)] for i in range(self.CEL_COL)]
+            return board_form
+                    
+        def get_horizontal(self):
+            """
+            Returns horizontal line ups
+            """
+            board_form = [[(self.g_k(i, j), self.board.get(self.g_k(i, j))) for j in range(self.CEL_COL)] for i in range(self.CEL_ROW)]
+            return board_form
+                
+        def get_diagonal_ltr(self):
+            """
+            Returns diagonal top Left To bottom Right (ltr) line ups
+            """
+            board_form = list()
+            for i in range(4):
+                line_up = list()
+                line_up2 = list()
+                i2 = 0
+                for j in range(6):
+                    line_up.append((self.g_k(i+i2, j), self.board.get(self.g_k(i+i2, j))))
+                    line_up2.append((self.g_k(j, i+i2), self.board.get(self.g_k(j, i+i2))))
+                    i2 += 1
+                if i != 0:
+                    board_form.append(line_up)
+                board_form.append(line_up2)
+            return board_form
             
-            frame:
-                xalign 0.5
-                yalign 0.5
-                grid 7 6:
-                    transpose True
-                    for i in range(7):
-                        for i2 in range(5,-1,-1):
-                            if "012".find(str(mas_connect4.connect4_board[i][i2])) == -1:
-                                add "mod_assets/connect4/images/connect4_cel_g.png"
-                            else:
-                                add "mod_assets/connect4/images/connect4_cel_" + str(mas_connect4.connect4_board[i][i2]) + ".png"
+        def get_diagonal_rtl(self):
+            """
+            Returns diagonal top Right To bottom Left (rtl) line ups
+            """
+            board_form = list()
+            for i in range(6):
+                line_up = list()
+                i2 = list(range(3, 9))
+                for j in range(9):
+                    line_up.append((self.g_k(i2[i]-j, j), self.board.get(self.g_k(i2[i]-j, j))))
+                board_form.append(line_up)
+            return board_form
+                
+        # GET LINE UP FUNCTIONS END
+    
+        def col_fill(self, col, turn):
+            """
+            Fills a column and signals the end of a turn
+            
+            INPUT:
+                col = Which column to fill
+                turn = Who is making the move
+            """
+            for i in range(5, -1, -1):
+                if self.board.get(self.g_k(i, col), 0) == 0:
+                    self.board[self.g_k(i, col)] = turn
+                    self.turn_move_success = True
+                    break
+        
+        def check_connect(self, line_up):
+            """
+            Checks the board for 4 same pins in a row
+            
+            INPUT: a line up to check
+            """
+            l_line_up = list()
+            for i, _i in line_up:
+                l_line_up.append(i)
+            for i in range(len(l_line_up)):
+                if i+4 > len(l_line_up):
+                    break
+                four = [self.board.get(i2, None) for i2 in l_line_up[i:i+4]]
+                if four == [self.AI for i2 in range(4)] or four == [self.PLAYER for i2 in range(4)]:
+                    self.win_set(four[0], l_line_up[i:i+4])
+                    
+        def examine_board(self):
+            """
+            Examines the board, called after every turn
+            """
+            for i in self.get_vertical():
+                self.check_connect(i)
+            for i in self.get_horizontal():
+                self.check_connect(i)
+            for i in self.get_diagonal_ltr():
+                self.check_connect(i)
+            for i in self.get_diagonal_rtl():
+                self.check_connect(i)
+                
+            if len(self.board) >= 42:
+                self.win_set()
+                
+            for i in range(self.CEL_COL):
+                if self.board.get(self.g_k(0, i), None) != None:
+                    self.full_col.add(i)
+                
+        def player_move(self):
+            """
+            Player makes a move
+            """
+            interact = ui.interact(type="minigame")
+            return interact
+                
+        def game_loop(self):
+            """
+            The game loop where things happen
+            """
+            while not self.quit_game:
+                self.set_button_states()
+            
+                while not self.turn_move_success:
+                    if self.turn == self.AI and not self.is_game_over:
+                        self.ai_move()
+                    else:
+                        interact = self.player_move()
+                        break
+                self.turn_switch()
+                
+                self.examine_board()
+                if len(self.win_tiles) > 0:
+                    say = " ".join(self.win_tiles)
+                    renpy.say(m, say, interact=False)
+                
+                if self.quit_game:
+                    return interact
+        
+        def win_set(self, winner=False, win_tiles=None):
+            """
+            Sets win variables
+            
+            INPUT:
+                winner = the winner of the game
+                win_tiles = tiles where the win happen
+            """
+            if win_tiles != None:
+                for i in win_tiles:
+                    self.win_tiles.add(i)
+            self.is_game_over = True
+            if winner:
+                self.winner = winner
+            
+        # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX AI CODES XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+            
+        def get_winning_line_up(self, pin, line_up):
+            """
+            Returns tiles where one of the player is about to win the next move
+            
+            INPUT:
+                pin = which player's pins to check for
+                line_up = the line up to check
+                
+            OUTPUT: a list of cels where winning move can be made the next turn
+            """
+            winning_line_up = list()
+            for i in range(len(line_up)):
+                if i+4 > len(line_up):
+                    break
+                four = [i2 for i2 in line_up[i:i+4]]
+                if [i2[1] for i2 in four].count(pin) == 3 and None in [i2[1] for i2 in four]:
+                    for key, val in four:
+                        if val is None:
+                            winning_line_up.append(key)
+                            
+            for i in winning_line_up:
+                if '-' in i or len(i) > 2:
+                    winning_line_up.remove(i)
+                elif int(i[0]) > 5 or int(i[1]) > 6:
+                    winning_line_up.remove(i)
+                            
+            return winning_line_up
+            
+        def get_ai_winning_cels(self):
+            """
+            Returns cels where the AI can win using get_winning_line_up function
+            
+            OUTPUT: a list of cels where AI can win the next move
+            """
+            winning_cels = list()
+            for line_up in self.get_vertical():
+                winning_cels.extend(self.get_winning_line_up(self.AI, line_up))
+            for line_up in self.get_horizontal():
+                winning_cels.extend(self.get_winning_line_up(self.AI, line_up))
+            for line_up in self.get_diagonal_ltr():
+                winning_cels.extend(self.get_winning_line_up(self.AI, line_up))
+            for line_up in self.get_diagonal_rtl():
+                winning_cels.extend(self.get_winning_line_up(self.AI, line_up))
+            return winning_cels
+            
+        def get_player_winning_cels(self):
+            """
+            Returns cels where the player can win using get_winning_line_up function
+            
+            OUTPUT: a list of cels where player can win the next move
+            """
+            winning_cels = list()
+            for line_up in self.get_vertical():
+                winning_cels.extend(self.get_winning_line_up(self.PLAYER, line_up))
+            for line_up in self.get_horizontal():
+                winning_cels.extend(self.get_winning_line_up(self.PLAYER, line_up))
+            for line_up in self.get_diagonal_ltr():
+                winning_cels.extend(self.get_winning_line_up(self.PLAYER, line_up))
+            for line_up in self.get_diagonal_rtl():
+                winning_cels.extend(self.get_winning_line_up(self.PLAYER, line_up))
+            return winning_cels
+    
+        def ai_move(self):
+            """
+            Tells the AI to move
+            """
+            # first we get the cels where someone can win
+            ai_winning_try_moves = list(self.get_ai_winning_cels())
+            player_winning_try_moves = list(self.get_player_winning_cels())
+            
+            while not self.turn_move_success:
+                renpy.pause(1.5)
+                
+                # the AI checks where it can win first. if found, makes a move there to win
+                while ai_winning_try_moves and not self.turn_move_success:
+                    try_fill = random.choice(ai_winning_try_moves)
+                    is_bottom_good = try_fill[0] == '5' or self.board.get(self.g_k(int(try_fill[0]) + 1, int(try_fill[1])), None) is not None
+                    if is_bottom_good:
+                        self.col_fill(try_fill[1], self.AI)
+                    else:
+                        ai_winning_try_moves.remove(try_fill)
+                
+                # if there are no winning move, check for tiles where player can win to cancel them from winning
+                while player_winning_try_moves and not self.turn_move_success:
+                    try_fill = random.choice(player_winning_try_moves)
+                    is_bottom_good = try_fill[0] == '5' or self.board.get(self.g_k(int(try_fill[0]) + 1, int(try_fill[1])), None) is not None
+                    if is_bottom_good:
+                        self.col_fill(try_fill[1], self.AI)
+                    else:
+                        player_winning_try_moves.remove(try_fill)
+                        
+                # makes a random move if there are no winning tiles lol
+                if not self.turn_move_success:
+                    self.col_fill(renpy.random.choice(list({i for i in range(self.CEL_COL)} - self.full_col)), self.AI)
         
     
     
 label game_connect4:
+    m "Let's start!"
     
-label mas_connect4_game_loop:
-    $ done = False
-    while not done:
-        $ mas_connect4.connect4_turn = mas_connect4.CONNECT4_PLAYER
+    label start_connect4:
+        pass
         
-        $ mas_connect4.start_game()
+    window hide None
+    show monika 1eua at t21
+    python:
+        quick_menu = False
         
-        m "Let's start."
-        window hide
-        while not mas_connect4.connect4_game_over:
-            $ mas_connect4.new_turn()
-            
-            if mas_connect4.connect4_turn == mas_connect4.CONNECT4_PLAYER:
-                call screen connect4
-                $ mas_connect4.col_fill(_return,mas_connect4.connect4_turn)
-            else:
-                show screen connect4_static
-                $ pause(0.2)
-                $ mas_connect4.ai_move()
-                hide screen connect4_static
-            
-            $ mas_connect4.examine_board()
-            $ mas_connect4.check_overflow_move()
-            $ mas_connect4.check_board_full()
-        $ pause(5.0)
+        connect4_displayable_obj = MASConnect4Displayable()
+        connect4_displayable_obj.show()
+        results = connect4_displayable_obj.game_loop()
+        connect4_displayable_obj.hide()
         
+        quick_menu = True
         
-        hide screen connect4_static
-        if not mas_connect4.connect4_win:
+        winner, ending = results
+        
+    label .connect4_end:
+        pass
+
+    show monika at t11
+    
+    if winner == False:
+        if ending == 0:
             m "Oh, it's a draw."
             m "I mean, I saw it coming, but it's quite a rare circumstance."
-        else:
-            if mas_connect4.connect4_winner == mas_connect4.CONNECT4_AI:
-                m "I won!"
-            else:
-                m "Oh, you won."
-            m "No matter the outcome, I love playing with you."
-        
-        
-        m "Would you like to play again?{nw}"
-        $ _history_list.pop()
-        menu:
-            m "Would you like to play again?{fast}"
-            "Yes.":
-                $ mas_connect4.connect4_game_over = False
-            "No.":
-                $ done = True
-    
-    m "Okay, let's play again later."
+        elif ending == 1:
+            m "Oh? You want to quit?"
+            m "I was having so much fun, [player]."
+            m "Oh well..."
+            m "Let's play again some time."
+            
+    else:
+        if winner == 1:
+            m "I won!"
+            
+        elif winner == 2:
+            m "Oh, you won."
+            
+        m "No matter the outcome, I love playing with you."
     return
             
             

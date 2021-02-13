@@ -838,12 +838,12 @@ label spaceroom(start_bg=None, hide_mask=None, hide_monika=False, dissolve_all=F
 
         else:
             if force_exp is None:
-#                force_exp = "monika idle"
-                if dissolve_all:
-                    force_exp = store.mas_affection._force_exp()
+                force_exp = "monika idle"
+                # if dissolve_all:
+                #     force_exp = store.mas_affection._force_exp()
 
-                else:
-                    force_exp = "monika idle"
+                # else:
+                #     force_exp = "monika idle"
 
             if not renpy.showing(force_exp):
                 renpy.show(force_exp, at_list=[t11], zorder=MAS_MONIKA_Z)
@@ -1679,16 +1679,31 @@ label ch30_minute(time_since_check):
 # NOTE: it only runs when the hour changes, so don't expect this to run
 #   on start right away
 label ch30_hour:
-    $ mas_runDelayedActions(MAS_FC_IDLE_HOUR)
+    python:
+        mas_runDelayedActions(MAS_FC_IDLE_HOUR)
 
-    #Runtime checks to see if we should have a consumable
-    $ MASConsumable._checkConsumables()
+        #Runtime checks to see if we should have a consumable
+        MASConsumable._checkConsumables()
 
-    # xp calc
-    $ store.mas_xp.grant()
+        # clear ahoges if past noon
+        now_t = datetime.datetime.now().time()
+        if mas_isNtoSS(now_t) or mas_isSStoMN(now_t):
+            monika_chr._set_ahoge(None)
 
-    #Set our TOD var
-    $ mas_setTODVars()
+        # xp calc
+        store.mas_xp.grant()
+
+        #Set our TOD var
+        mas_setTODVars()
+
+        # Inc the chance for hold request
+        with MAS_EVL("monika_holdrequest") as holdme_ev:
+            # See if we flagged the ev
+            if holdme_ev.allflags(EV_FLAG_HFRS):
+                chance = max(mas_getSessionLength().total_seconds() / (4*3600.0), 0.2)
+                if chance >= 1 or random.random() < chance:
+                    holdme_ev.unflag(EV_FLAG_HFRS)
+
     return
 
 # label for things that should run about once per day
@@ -1796,6 +1811,7 @@ label ch30_reset:
             "chess": "mas_unlock_chess",
             mas_games.HANGMAN_NAME: "mas_unlock_hangman",
             "piano": "mas_unlock_piano",
+            "connect 4": "mas_unlock_connect4",
         }
         mas_unlockGame("pong") # always unlock pong
 
@@ -1829,6 +1845,32 @@ label ch30_reset:
     if not mas_hasSpecialOutfit():
         $ mas_lockEVL("monika_event_clothes_select", "EVE")
 
+    # set ahoge if appropraite
+    $ now = datetime.datetime.now()
+    if (
+            persistent._mas_dev_ahoge
+            or mas_isMNtoSR(now.time())
+            or mas_isSRtoN(now.time())
+    ):
+        # its morning/middle of night, and Monika MIGHT ahoge
+
+        # NOTE: the random check and the absence length check must be here.
+        #   we don't want to clear the ahoge if the user reopens the mod
+        #   during the same morning.
+        if (
+                persistent._mas_dev_ahoge
+                or (
+                    mas_getAbsenceLength() >= datetime.timedelta(minutes=30)
+                    and random.randint(1, 2) == 1
+                )
+        ):
+            # NOTE: the ahoge function takes last dt into account.
+            $ monika_chr.ahoge()
+
+    else:
+        # out of applicable ahoge time. Do not ahoge. Remove any existing.
+        $ monika_chr._set_ahoge(None)
+
     #### END SPRITES
 
     ## accessory hotfixes
@@ -1841,12 +1883,6 @@ label ch30_reset:
 
     ## random chatter frequency reset
     $ mas_randchat.adjustRandFreq(persistent._mas_randchat_freq)
-    ## chess strength reset
-    python:
-        if persistent.chess_strength < 0:
-            persistent.chess_strength = 0
-        elif persistent.chess_strength > 20:
-            persistent.chess_strength = 20
 
     ## monika returned home reset
     python:

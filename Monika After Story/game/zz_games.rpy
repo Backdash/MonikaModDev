@@ -172,6 +172,8 @@ label mas_piano:
     call mas_piano_start
     return
 
+# ++++++++++++++++++++++++++++++++++++++++++++ NEW ADDITION +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 init 5 python:
     addEvent(
         Event(
@@ -185,6 +187,9 @@ init 5 python:
 label mas_connect4:
     call game_connect4
     return
+
+# -------------------------------------------- NEW ADDITION -------------------------------------------------------
+
 
 label mas_pick_a_game:
     # we can assume that getting here means we didnt cut off monika
