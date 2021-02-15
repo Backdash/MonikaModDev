@@ -84,6 +84,9 @@ init -1 python:
         # Color used for the note
         NOTE_COLOR = "#181818"
 
+        # Font used for the note
+        NOTE_FONT = "mod_assets/font/m1_fixed.ttf"
+
         # Month names constant array
         MONTH_NAMES = ["Unknown", "January", "February",
             "March", "April", "May", "June", "July",
@@ -523,7 +526,7 @@ M̼̤̱͇̤ ͈̰̬͈̭ͅw̩̜͇͈ͅa̲̩̭̩ͅs̙ ̣͔͓͚̰h̠̯̫̼͉e̗̗̮r�
             self.day_button_texts = []
 
             # set the note style attributes
-            note_font = "gui/font/m1.TTF"
+            note_font = self.NOTE_FONT
             note_text_size = self.NOTE_TEXT_SIZE
             note_color = self.NOTE_COLOR
             note_ystart = 1
@@ -2214,6 +2217,7 @@ screen calendar_overlay():
 
     if (
         store.mas_calendar.enabled
+        and not store._menu
         and renpy.get_screen("mas_calendar_screen") is None
     ):
         imagebutton:

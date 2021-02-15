@@ -1030,7 +1030,7 @@ class BaseBoard(object):
 
                 if piece:
                     builder.append(piece.unicode_symbol(invert_color=invert_color))
-                else: 
+                else:
                     builder.append(u".")
 
             if borders:
@@ -1902,6 +1902,7 @@ class Board(BaseBoard):
             if a_side:
                 self._set_piece_at(C1 if self.turn == WHITE else C8, KING, self.turn)
                 self._set_piece_at(D1 if self.turn == WHITE else D8, ROOK, self.turn)
+
             else:
                 self._set_piece_at(G1 if self.turn == WHITE else G8, KING, self.turn)
                 self._set_piece_at(F1 if self.turn == WHITE else F8, ROOK, self.turn)

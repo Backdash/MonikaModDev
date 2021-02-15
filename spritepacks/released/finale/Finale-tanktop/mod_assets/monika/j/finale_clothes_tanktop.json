@@ -1,0 +1,27 @@
+{
+    "__author": "Finale",
+    "version": 3,
+    "type": 2,
+    "name": "finale_tanktop",
+    "img_sit": "finale_tanktop",
+    "pose_map": {
+        "mpm_type": 0,
+        "default": true,
+        "use_reg_for_l": true
+    },
+    "stay_on_start": true,
+    "ex_props": {
+        "bare-right-shoulder": true
+    },
+    "select_info": {
+        "display_name": "Tanktop (White)",
+        "thumb": "finale_tanktop",
+        "group": "clothes",
+        "select_dlg": [
+            "How do I look, [player]?",
+            "Perfect for a hot day."
+        ]
+    },
+    "giftname": "tanktop",
+    "pose_arms": {}
+}

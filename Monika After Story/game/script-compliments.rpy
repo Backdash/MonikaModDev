@@ -853,6 +853,61 @@ label mas_compliment_spending_time_2:
             m 2ekd "...but that's not {i}quite{/i} what I had in mind."
     return
 
+init 5 python:
+    addEvent(
+        Event(
+            persistent._mas_compliments_database,
+            eventlabel="mas_compliment_sweet",
+            prompt="You're really sweet!",
+            conditional="store.mas_anni.pastThreeMonths()",
+            action=EV_ACT_UNLOCK,
+            unlocked=False,
+            aff_range=(mas_aff.AFFECTIONATE, None)
+        ),
+        code="CMP"
+    )
+
+label mas_compliment_sweet:
+    if mas_getEVL_shown_count("mas_compliment_sweet"):
+        jump mas_compliment_sweet_repeat
+
+    m 1ekbsb "Aww, [player]..."
+    m 3rkbssdlu "I don't know what to say, ahaha...{w=0.3}{nw}"
+    extend 3ekbsa "it's {i}you{/i} who's been so sweet to me all this time."
+    m 3hubsa "I'm just really happy to hear you say that, ehehe~"
+
+    menu:
+        "Your words always brighten my day!":
+            $ mas_gainAffection(3, bypass=True)
+            m 1sud "[player]..."
+            extend 1eka "I had no idea how much my words meant to you..."
+            m 1ekblb "I'm so happy to have such an amazing [bf] like you, [mas_get_player_nickname(exclude_names=[player])]~"
+            m 1ekbsu "You really are the best I could ever hope for...{w=0.2}I just love you so much."
+            m 3kua "I hope you never forget that, [player]."
+            $ mas_ILY()
+
+        "You're really special to me, [m_name]!":
+            $ mas_gainAffection(3, bypass=True)
+            m 1ekbsb "Oh, [player]...{w=0.3} {nw}"
+            extend 3hubsa "Just you spending your time here with me makes me feel so happy and loved!"
+            show monika 5ekbsa at t11 zorder MAS_MONIKA_Z with dissolve_monika
+            m 5ekbsa "I'm really happy you feel that way about me, [mas_get_player_nickname()]. I love you so much."
+            $ mas_ILY()
+
+        "You're the sweetest girl I've ever met!":
+            $ mas_gainAffection(2, bypass=True)
+            m 1ekbsa "Thank you, [mas_get_player_nickname()]."
+            m 3hubsb "You're the sweetest [boy] I've met, ehehe."
+            show monika 5eua at t11 zorder MAS_MONIKA_Z with dissolve_monika
+            m 5eua "I'm really lucky to be with you~"
+
+    return
+
+label mas_compliment_sweet_repeat:
+    m 3hubsb "[mas_compliments.thanks_quip]"
+    m 1hubfa "I'm so happy to hear you say that, ehehe~"
+    return
+
 # this compliment's lock/unlock is controlled by the def outfit pp
 init 5 python:
     addEvent(
@@ -866,13 +921,9 @@ init 5 python:
     )
 
 label mas_compliment_outfit:
-    if not renpy.seen_label("mas_compliment_outfit_2"):
-        call mas_compliment_outfit_2
-    else:
-        call mas_compliment_outfit_3
-    return
+    if mas_getEVL_shown_count("mas_compliment_outfit"):
+        jump mas_compliment_outfit_repeat
 
-label mas_compliment_outfit_2:
     m 1hubsb "Thank you, [mas_get_player_nickname()]!"
 
     if monika_chr.is_wearing_clothes_with_exprop("cosplay"):
@@ -911,7 +962,7 @@ label mas_compliment_outfit_2:
 
     return
 
-label mas_compliment_outfit_3:
+label mas_compliment_outfit_repeat:
     m 1hubsb "[mas_compliments.thanks_quip]"
 
     if monika_chr.is_wearing_clothes_with_exprop("cosplay"):
@@ -927,5 +978,4 @@ label mas_compliment_outfit_3:
 
     else:
         m 2hubsb "I'm sure you look good too!"
-
     return

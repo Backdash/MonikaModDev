@@ -1335,7 +1335,7 @@ label ch30_post_exp_check:
         $ pushEvent(selected_greeting)
 
     #Now we check if we should drink
-    $ MASConsumable._checkConsumables(startup=True)
+    $ MASConsumable._checkConsumables(startup=not mas_globals.returned_home_this_sesh)
 
     # if not persistent.tried_skip:
     #     $ config.allow_skipping = True

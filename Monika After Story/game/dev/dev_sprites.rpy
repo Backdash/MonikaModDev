@@ -229,8 +229,8 @@ label dev_sp_obj_pp_test:
     m "but side effects may occur."
 
 label dev_sp_obj_pp_test_top:
-    
-    call screen mas_gen_scrollable_menu(top_level_menu, store.mas_moods.MOOD_AREA, store.mas_moods.MOOD_XALIGN, returner)
+
+    call screen mas_gen_scrollable_menu(top_level_menu, mas_ui.SCROLLABLE_MENU_MEDIUM_AREA, mas_ui.SCROLLABLE_MENU_XALIGN, returner)
 
     if _return is False:
         # restore state
@@ -242,7 +242,7 @@ label dev_sp_obj_pp_test_top:
 label dev_sp_obj_pp_test_sp_select:
 
     # otherwise, create menu using the given list
-    call screen mas_gen_scrollable_menu(selected_sp_list, store.mas_moods.MOOD_AREA, store.mas_moods.MOOD_XALIGN, returner)
+    call screen mas_gen_scrollable_menu(selected_sp_list, mas_ui.SCROLLABLE_MENU_MEDIUM_AREA, mas_ui.SCROLLABLE_MENU_XALIGN, returner)
 
     if _return is False:
         jump dev_sp_obj_pp_test_top
@@ -362,3 +362,38 @@ init -2 python in mas_sprites:
 
     def _acs__testingxcp_exit(_moni_chr, **kwargs):
         raise Exception("ACS EXIT")
+
+init python:
+    if persistent._mas_dev_ahoge is None:
+        persistent._mas_dev_ahoge = config.developer
+
+init 5 python:
+    addEvent(
+        Event(
+            persistent.event_database,
+            eventlabel="dev_ahoge_test",
+            category=["dev"],
+            prompt="TEST AHOGES",
+            pool=True,
+            unlocked=True
+        )
+    )
+
+label dev_ahoge_test:
+
+    m 2tfblp "I test ahoges now. if wearing hat, it will be removed. zoom out if u want."
+    m "dlg will dismiss auto, no need to click"
+
+    $ ahoges = store.mas_sprites.get_acs_of_type("ahoge")
+    $ index = 0
+    while index < len(ahoges):
+        $ monika_chr._set_ahoge(ahoges[index], force_wear=True)
+        $ ahoge_name = ahoges[index].name
+        m 6nkd "this is [ahoge_name]{w=1}{nw}"
+        $ index += 1
+
+    m 1eua "now we are done"
+
+    $ monika_chr.remove_all_acs_in("ahoge")
+
+    return

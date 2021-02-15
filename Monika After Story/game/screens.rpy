@@ -2448,26 +2448,6 @@ style notify_frame is empty:
 style notify_text is gui_text:
     size gui.notify_text_size
 
-## This part of the code is used to create the tutorial selection screen.
-
-#Each tutorial is defined by its name (caption) and its label,
-#items is the list of caption and label of each tutorial
-#init python is necessary because items is a List, a python object
-
-init python:
-
-    items = [(_("Introduction"),"example_chapter")
-        ,(_("Route Part 1, How To Make A Mod"),"tutorial_route_p1")
-        ,(_("Route Part 2, Music"),"tutorial_route_p2")
-        ,(_("Route Part 3, Scene"),"tutorial_route_p3")
-        ,(_("Route Part 4, Dialogue"),"tutorial_route_p4")
-        ,(_("Route Part 5, Menu"),"tutorial_route_p5")
-        ,(_("Route Part 6, Logic Statement"),"tutorial_route_p6")
-        ,(_("Route Part 7, Sprite"),"tutorial_route_p7")
-        ,(_("Route Part 8, Position"),"tutorial_route_p8")
-        ,(_("Route Part 9, Ending"),"tutorial_route_p9")]
-
-
 ## Scrollable Menu ###############################################################
 ##
 ## This screen creates a vertically scrollable menu of prompts attached to labels
@@ -2933,29 +2913,6 @@ screen mas_generic_restart:
                 spacing 100
 
                 textbutton _("OK") action Return(True)
-
-
-# generic custom displayabels below:
-init python:
-    class PauseDisplayable(renpy.Displayable):
-        """
-        Pause until click variant of Pause
-        This is because normal pause until click is broken for some reason
-        """
-        import pygame
-
-        def __init__(self):
-            super(renpy.Displayable, self).__init__()
-
-        def render(self, width, height, st, at):
-            # dont actually render anything
-            return renpy.Render(width, height)
-
-        def event(self, ev, x, y, st):
-            if ev.type == pygame.MOUSEBUTTONDOWN and ev.button not in (4, 5):
-                return True
-
-            raise renpy.IgnoreEvent()
 
 # Partial generic showpoem screen
 # IN:

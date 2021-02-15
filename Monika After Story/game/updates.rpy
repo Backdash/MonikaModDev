@@ -327,10 +327,11 @@ init 10 python:
         late_updates = [
             "v0_8_3",
             "v0_8_4",
-            "v0_8_10"
+            "v0_8_10",
+            "v0_12_0",
         ]
 
-        renpy.call_in_new_context("vv_updates_topics")
+        store.mas_versions.init()
         ver_list = store.updates.version_updates.keys()
 
         if "-" in config.version:
@@ -372,6 +373,100 @@ label v0_3_1(version=version): # 0.3.1
     return
 
 # non generic updates go here
+
+# 0.12.0.1
+label v0_12_0_1(version="v0_12_0_1"):
+    python:
+        pass
+    return
+
+# 0.12.0
+label v0_12_0(version="v0_12_0"):
+    python:
+        mas_setEVLPropValues(
+            "mas_d25_monika_holiday_intro_upset",
+            end_date=mas_d25
+        )
+
+        mas_setEVLPropValues(
+            "mas_d25_monika_christmas",
+            conditional="not mas_lastSeenInYear('mas_d25_monika_christmas')"
+        )
+
+        mas_setEVLPropValues(
+            "mas_nye_monika_nye_dress_intro",
+            conditional="persistent._mas_d25_in_d25_mode",
+            action=EV_ACT_PUSH
+        )
+
+        mas_setEVLPropValues(
+            "mas_pf14_monika_lovey_dovey",
+            random=False,
+            conditional="not renpy.seen_label('mas_pf14_monika_lovey_dovey')",
+            action=EV_ACT_QUEUE,
+            start_date=mas_f14-datetime.timedelta(days=3),
+            end_date=mas_f14
+        )
+
+        # enable late updates to fix the annis again
+        persistent._mas_zz_lupd_ex_v.append(version)
+
+    return
+
+# 0.11.9.3
+label v0_11_9_3(version="v0_11_9_3"):
+    python:
+        if renpy.seen_label('mas_chess_dlg_qf_lost_ofcn_6'):
+            persistent._mas_chess_timed_disable = True
+
+        mas_setEVLPropValues(
+            "mas_chess",
+            conditional=(
+                "persistent._mas_chess_timed_disable is not True "
+                "and mas_games.is_platform_good_for_chess() "
+                "and mas_timePastSince(persistent._mas_chess_timed_disable, datetime.timedelta(hours=1))"
+            )
+        )
+
+        fps_to_delete = [
+            "zz_windowreacts.rpy",
+            "Submods/Enhanced Idle/enhanced idle.rpy"
+        ]
+
+        for fp in fps_to_delete:
+            mas_utils.trydel(os.path.join(renpy.config.gamedir, fp).replace('\\', '/'))
+            mas_utils.trydel(os.path.join(renpy.config.gamedir, fp + "c").replace('\\', '/'))
+
+    return
+
+# 0.11.9.1
+label v0_11_9_1(version="v0_11_9_1"):
+    python:
+        mas_bookmarks_derand.removeDerand("monika_twitter")
+
+        mas_setEVLPropValues(
+            "monika_twitter",
+            random=False,
+            conditional="renpy.seen_label('monika_clones')",
+            action=EV_ACT_RANDOM
+        )
+
+        if seen_event("monika_boardgames"):
+            mas_protectedShowEVL("monika_boardgames_history", "EVE", _random=True)
+
+        # We don't use this var anymore
+        safeDel("chess_strength")
+
+        for story_type, story_last_seen in persistent._mas_last_seen_new_story.iteritems():
+            if story_last_seen is not None:
+                persistent._mas_last_seen_new_story[story_type] = datetime.datetime.combine(
+                    story_last_seen, datetime.time()
+                )
+
+        if seen_event("monika_asimov_three_laws"):
+            mas_protectedShowEVL("monika_foundation", "EVE", _random=True)
+    return
+
 # 0.11.9
 label v0_11_9(version="v0_11_9"):
     python:
@@ -2752,6 +2847,15 @@ label v0_3_0(version="v0_3_0"):
 #
 #   Please make sure your late update scripts are not required before a next
 #   version regular update script.
+label mas_lupd_v0_12_0:
+    python:
+        #Reset annis as F29 based ones are on the wrong date
+        first_sesh = mas_getFirstSesh()
+        if first_sesh.month == 2 and first_sesh.day == 29:
+            mas_anni.reset_annis(first_sesh)
+
+    return
+
 label mas_lupd_v0_8_10:
     python:
         import store.mas_selspr as mas_selspr

@@ -192,7 +192,8 @@ transform blink_transform(open_eyes_img, closed_eyes_img):
         repeat
 
 transform wink_transform(wink_img, open_eyes_img):
-    block:
+    # HACK: we use events here so renpy allows us to reuse this transform
+    on default, show, replace:
         wink_img
         1
         open_eyes_img

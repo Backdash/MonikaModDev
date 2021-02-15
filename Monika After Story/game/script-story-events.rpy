@@ -307,7 +307,7 @@ init 3 python:
         "lezbo",
         "liar",
         "loser",
-        "mad",
+        "^mad$",
         "maniac",
         "masochist",
         "milf",
@@ -1054,7 +1054,7 @@ init 5 python:
 
 label mas_random_limit_reached:
     #Notif so people don't get stuck here
-    $ display_notif(m_name, ["Hey [player]..."], "Topic Alerts")
+    $ mas_display_notif(m_name, ["Hey [player]..."], "Topic Alerts")
 
     python:
         limit_quips = [
@@ -2104,7 +2104,7 @@ label mas_notification_windowreact:
             "Sure!":
                 m 1hua "Okay, [player]!"
                 m 2dsa "Just give me a second to make a notification.{w=0.5}.{w=0.5}.{nw}"
-                $ display_notif(m_name, ["I love you, [player]!"], skip_checks=True)
+                $ mas_display_notif(m_name, ["I love you, [player]!"], skip_checks=True)
                 m 1hub "There it is!"
 
             "No thanks.":
@@ -2198,6 +2198,16 @@ init 5 python:
     )
 
 label mas_change_to_def:
+    # remove from event list in case PP and ch30 both push
+    $ mas_rmallEVL("mas_change_to_def")
+
+    #Extra sanity check just in case. This should NEVER happen.
+    if (
+        mas_hasSpecialOutfit()
+        and monika_chr.clothes.name == persistent._mas_event_clothes_map[datetime.date.today()]
+    ):
+        return "no_unlock"
+
     # on occasion after special events we want to change out of an outfit like a costume
     # in these cases, for Happy+, change to blazerless instead
     if mas_isMoniHappy(higher=True) and monika_chr.clothes != mas_clothes_blazerless:
@@ -2216,9 +2226,6 @@ label mas_change_to_def:
         call mas_clothes_change()
 
         m "Okay, what else should we do today?"
-
-        # remove from event list in case PP and ch30 both push
-        $ mas_rmallEVL("mas_change_to_def")
 
         # lock the event clothes selector
         $ mas_lockEVL("monika_event_clothes_select", "EVE")

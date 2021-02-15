@@ -1,14 +1,6 @@
 # Module that defines changed topics between versions
 # this should run before updates.rpy
 
-# start by initalization version update dict
-define updates.version_updates = None
-
-# key:version number -> v:changedIDs
-# changedIDs structure:
-#   k:oldId -> v:newId
-define updates.topics = None
-
 init -1 python in mas_db_merging:
     import store
 
@@ -40,148 +32,125 @@ init -1 python in mas_db_merging:
 # preeerything
 init -1 python:
     def clearUpdateStructs():
-        #
-        # Clears a bunch of uneeded stuff
-
-        updates.topics.clear()
-        updates.topics = None
-        #updates.version_updates.clear()
-        #updates.version_updates = None
-        # TODO
-        # is there a way to delete a renpy storemodule?
+        """DEPRECATED
+        Use mas_versions.clear instead
+        """
+        store.mas_versions.clear()
 
 
-# runs before updates.rpy
 init 9 python:
-    renpy.call_in_new_context("vv_updates_topics")
+    store.mas_versions.init()
 
-# init label for updats_topics
-label vv_updates_topics:
-    python:
+# NOTE: these are now just ptrs to the actual store values.
+# NOTE: DO NOT CHANGE THE init LEVEL of THESE LINES
+define updates.version_updates = mas_versions.version_updates
+define updates.topics = mas_versions.topics
 
-        # init these dicts
-        updates.version_updates = {}
-        updates.topics = {}
 
-        # versions
-        # use the v#_#_# notation so we can work with labels
-        vv0_11_9 = "v0_11_9"
-        vv0_11_8 = "v0_11_8"
-        vv0_11_7 = "v0_11_7"
-        vv0_11_6 = "v0_11_6"
-        vv0_11_5 = "v0_11_5"
-        vv0_11_4 = "v0_11_4"
-        vv0_11_3 = "v0_11_3"
-        vv0_11_2 = "v0_11_2"
-        vv0_11_1 = "v0_11_1"
-        vv0_11_0 = "v0_11_0"
-        vv0_10_7 = "v0_10_7"
-        vv0_10_6 = "v0_10_6"
-        vv0_10_5 = "v0_10_5"
-        vv0_10_4 = "v0_10_4"
-        vv0_10_3 = "v0_10_3"
-        vv0_10_2 = "v0_10_2"
-        vv0_10_1 = "v0_10_1"
-        vv0_10_0 = "v0_10_0"
-        vv0_9_5 = "v0_9_5"
-        vv0_9_4 = "v0_9_4"
-        vv0_9_3 = "v0_9_3"
-        vv0_9_2 = "v0_9_2"
-        vv0_9_1 = "v0_9_1"
-        vv0_9_0 = "v0_9_0"
-        vv0_8_14 = "v0_8_14"
-        vv0_8_13 = "v0_8_13"
-        vv0_8_12 = "v0_8_12"
-        vv0_8_11 = "v0_8_11"
-        vv0_8_10 = "v0_8_10"
-        vv0_8_9 = "v0_8_9"
-        vv0_8_8 = "v0_8_8"
-        vv0_8_7 = "v0_8_7"
-        vv0_8_6 = "v0_8_6"
-        vv0_8_5 = "v0_8_5"
-        vv0_8_4 = "v0_8_4"
-        vv0_8_3 = "v0_8_3"
-        vv0_8_2 = "v0_8_2"
-        vv0_8_1 = "v0_8_1"
-        vv0_8_0 = "v0_8_0"
-        vv0_7_4 = "v0_7_4"
-        vv0_7_3 = "v0_7_3"
-        vv0_7_2 = "v0_7_2"
-        vv0_7_1 = "v0_7_1"
-        vv0_7_0 = "v0_7_0"
-        vv0_6_3 = "v0_6_3"
-        vv0_6_2 = "v0_6_1"
-        vv0_6_1 = "v0_6_1"
-        vv0_6_0 = "v0_6_0"
-        vv0_5_1 = "v0_5_1"
-        vv0_5_0 = "v0_5_0"
-        vv0_4_0 = "v0_4_0"
-        vv0_3_3 = "v0_3_3"
-        vv0_3_2 = "v0_3_2"
-        vv0_3_1 = "v0_3_1"
-        vv0_3_0 = "v0_3_0"
-        vv0_2_2 = "v0_2_2"
+init -2 python in mas_versions:
+    import store
+    import store.mas_utils as mas_utils
+    from store.mas_ev_data_ver import _verify_str
 
-        # update this dict accordingly to every new version
-        # k:old version number -> v:new version number
-        # some version changes skip some numbers because no major updates
-        #NOTE: If a version does not have and update script, its version still must be documented and point to the next update
-        #script available
-        updates.version_updates[vv0_11_8] = vv0_11_9
-        updates.version_updates[vv0_11_7] = vv0_11_9
-        updates.version_updates[vv0_11_6] = vv0_11_7
-        updates.version_updates[vv0_11_5] = vv0_11_6
-        updates.version_updates[vv0_11_4] = vv0_11_5
-        updates.version_updates[vv0_11_3] = vv0_11_4
-        updates.version_updates[vv0_11_2] = vv0_11_3
-        updates.version_updates[vv0_11_1] = vv0_11_3
-        updates.version_updates[vv0_11_0] = vv0_11_1
-        updates.version_updates[vv0_10_7] = vv0_11_0
-        updates.version_updates[vv0_10_6] = vv0_10_7
-        updates.version_updates[vv0_10_5] = vv0_10_6
-        updates.version_updates[vv0_10_4] = vv0_10_5
-        updates.version_updates[vv0_10_3] = vv0_10_4
-        updates.version_updates[vv0_10_2] = vv0_10_3
-        updates.version_updates[vv0_10_1] = vv0_10_2
-        updates.version_updates[vv0_10_0] = vv0_10_1
-        updates.version_updates[vv0_9_5] = vv0_10_0
-        updates.version_updates[vv0_9_4] = vv0_9_5
-        updates.version_updates[vv0_9_3] = vv0_9_4
-        updates.version_updates[vv0_9_2] = vv0_9_4
-        updates.version_updates[vv0_9_1] = vv0_9_2
-        updates.version_updates[vv0_9_0] = vv0_9_1
-        updates.version_updates[vv0_8_14] = vv0_9_0
-        updates.version_updates[vv0_8_13] = vv0_8_14
-        updates.version_updates[vv0_8_12] = vv0_8_13
-        updates.version_updates[vv0_8_11] = vv0_8_13
-        updates.version_updates[vv0_8_10] = vv0_8_11
-        updates.version_updates[vv0_8_9] = vv0_8_10
-        updates.version_updates[vv0_8_8] = vv0_8_9
-        updates.version_updates[vv0_8_7] = vv0_8_9
-        updates.version_updates[vv0_8_6] = vv0_8_9
-        updates.version_updates[vv0_8_5] = vv0_8_6
-        updates.version_updates[vv0_8_4] = vv0_8_6
-        updates.version_updates[vv0_8_3] = vv0_8_4
-        updates.version_updates[vv0_8_2] = vv0_8_3
-        updates.version_updates[vv0_8_1] = vv0_8_2
-        updates.version_updates[vv0_8_0] = vv0_8_1
-        updates.version_updates[vv0_7_4] = vv0_8_0
-        updates.version_updates[vv0_7_3] = vv0_7_4
-        updates.version_updates[vv0_7_2] = vv0_7_4
-        updates.version_updates[vv0_7_1] = vv0_7_2
-        updates.version_updates[vv0_7_0] = vv0_7_1
-        updates.version_updates[vv0_6_3] = vv0_7_0
-        updates.version_updates[vv0_6_2] = vv0_7_0
-        updates.version_updates[vv0_6_1] = vv0_7_0
-        updates.version_updates[vv0_6_0] = vv0_6_1
-        updates.version_updates[vv0_5_1] = vv0_6_1
-        updates.version_updates[vv0_5_0] = vv0_5_1
-        updates.version_updates[vv0_4_0] = vv0_5_1
-        updates.version_updates[vv0_3_3] = vv0_5_1
-        updates.version_updates[vv0_3_2] = vv0_3_3
-        updates.version_updates[vv0_3_1] = vv0_3_2
-        updates.version_updates[vv0_3_0] = vv0_3_1
-        updates.version_updates[vv0_2_2] = vv0_3_0
+    # start by initalization version update dict
+    version_updates = {}
+
+    # key:version number -> v:changedIDs
+    # changedIDs structure:
+    #   k:oldId -> v:newId
+    topics = {}
+
+
+    def add_steps(version_struct):
+        """
+        Adds versions to the version updates dict.
+
+        IN:
+            version_struct - dict with versions in special version notation.
+                Keys: version to update to, as string
+                Vals: versions to update from, as string or tuple of strings
+        """
+        for to_ver, from_vers in version_struct.items(): # using items for py3
+            to_ver_str = _vdot2vstr(to_ver)
+            if _verify_str(from_vers, False):
+                version_updates[_vdot2vstr(from_vers)] = to_ver_str
+            else:
+                # must be tuple
+                for from_ver in from_vers:
+                    version_updates[_vdot2vstr(from_ver)] = to_ver_str
+
+
+    def clear():
+        """
+        Clears the update data structures
+        """
+        version_updates.clear()
+        topics.clear()
+
+
+    def init():
+        """
+        Initializes the update data structures
+        """
+        # use the notation:
+        #   new version: old version
+        # OR
+        #   new version: (old version 1, old version 2, ...)
+        #
+        # use dot notation to separate the parts of a version
+
+        add_steps({
+            #"0.12.0.1": "0.12.0",
+            "0.12.0": "0.11.9.3",
+            "0.11.9.3": ("0.11.9.2", "0.11.9.1"),
+            "0.11.9.1": "0.11.9",
+            "0.11.9": ("0.11.8", "0.11.7"),
+            "0.11.7": "0.11.6",
+            "0.11.6": "0.11.5",
+            "0.11.5": "0.11.4",
+            "0.11.4": "0.11.3",
+            "0.11.3": ("0.11.2", "0.11.1"),
+            "0.11.1": "0.11.0",
+            "0.11.0": "0.10.7",
+
+            "0.10.7": "0.10.6",
+            "0.10.6": "0.10.5",
+            "0.10.5": "0.10.4",
+            "0.10.4": "0.10.3",
+            "0.10.3": "0.10.2",
+            "0.10.2": "0.10.1",
+            "0.10.1": "0.10.0",
+            "0.10.0": "0.9.5",
+
+            "0.9.5": "0.9.4",
+            "0.9.4": ("0.9.3", "0.9.2"),
+            "0.9.2": "0.9.1",
+            "0.9.1": "0.9.0",
+            "0.9.0": "0.8.14",
+
+            "0.8.14": "0.8.13",
+            "0.8.13": ("0.8.12", "0.8.11"),
+            "0.8.11": "0.8.10",
+            "0.8.10": "0.8.9",
+            "0.8.9": ("0.8.8", "0.8.7", "0.8.6"),
+            "0.8.6": ("0.8.5", "0.8.4"),
+            "0.8.4": "0.8.3",
+            "0.8.3": "0.8.2",
+            "0.8.2": "0.8.1",
+            "0.8.1": "0.8.0",
+            "0.8.0": "0.7.4",
+
+            "0.7.4": ("0.7.3", "0.7.2"),
+            "0.7.2": "0.7.1",
+            "0.7.1": "0.7.0",
+            "0.7.0": ("0.6.3", "0.6.2", "0.6.1"),
+            "0.6.1": ("0.6.0", "0.5.1"),
+            "0.5.1": ("0.5.0", "0.4.0", "0.3.3"),
+            "0.3.3": "0.3.2",
+            "0.3.2": "0.3.1",
+            "0.3.1": "0.3.0",
+            "0.3.0": "0.2.2",
+        })
 
         # NOTE: we are no longer going to use this:
         #
@@ -196,9 +165,10 @@ label vv_updates_topics:
         # do NOT use this to update the IDs
         # All conflicts should be handled in an individual script block in
         # updates.rpy. (SEE updates.rpy)
+        updates = store.updates
 
         # (0.8.4 - 0.8.10) -> 0.8.11
-        updates.topics[vv0_8_11] = {
+        updates.topics[_vdot2vstr("0.8.11")] = {
             "monika_snowman": None,
             "monika_relax": None,
             "monika_hypothermia": None,
@@ -206,24 +176,24 @@ label vv_updates_topics:
         }
 
         # (0.8.1 - 0.8.3) -> 0.8.4
-        updates.topics[vv0_8_4] = {
+        updates.topics[_vdot2vstr("0.8.4")] = {
             "monika_bestgirl": "mas_compliment_bestgirl"
         }
 
         # 0.8.0 -> 0.8.1
-        updates.topics[vv0_8_1] = {
+        updates.topics[_vdot2vstr("0.8.1")] = {
             "monika_write": "monika_writingtip3",
             "mas_random_ask": None,
             "monika_ravel": "mas_story_ravel"
         }
 
         # 0.7.4 -> 0.8.0
-        updates.topics[vv0_8_0] = {
+        updates.topics[_vdot2vstr("0.8.0")] = {
             "monika_love2": None
         }
 
         # (0.7.0 - 0.7.3) -> 0.7.4
-        updates.topics[vv0_7_4] = {
+        updates.topics[_vdot2vstr("0.7.4")] = {
             "monika_playerhappy": None,
             "monika_bad_day": None
         }
@@ -239,13 +209,13 @@ label vv_updates_topics:
             "monika_goodbye": None,
             "monika_night": None
         }
-        updates.topics[vv0_7_0] = changedIDs
+        updates.topics[_vdot2vstr("0.7.0")] = changedIDs
 
         # (0.5.1 - 0.6.0) -> 0.6.1
         changedIDs = {
             "monika_piano": None
         }
-        updates.topics[vv0_6_1] = changedIDs
+        updates.topics[_vdot2vstr("0.6.1")] = changedIDs
 
         # (0.3.3 - 0.5.0) -> 0.5.1
         changedIDs = dict()
@@ -261,17 +231,17 @@ label vv_updates_topics:
         changedIDs["monika_kyon"] = None
         changedIDs["monika_water"] = None
         changedIDs["monika_computer"] = None
-        updates.topics[vv0_5_1] = changedIDs
+        updates.topics[_vdot2vstr("0.5.1")] = changedIDs
 
         # 0.3.1 -> 0.3.2
         changedIDs = dict()
         changedIDs["monika_monika"] = None
-        updates.topics[vv0_3_2] = changedIDs
+        updates.topics[_vdot2vstr("0.3.2")] = changedIDs
 
         # 0.3.0 -> 0.3.1
         changedIDs = dict()
         changedIDs["monika_ghosts"] = "monika_whispers"
-        updates.topics[vv0_3_1] = changedIDs
+        updates.topics[_vdot2vstr("0.3.1")] = changedIDs
 
         # 0.2.2 -> 0.3.0
         # this is a long list...
@@ -388,7 +358,20 @@ label vv_updates_topics:
             # changedIDs dict (these must be handled in updates.rpy)
             # monika_piano
             # monika_college was pointing to ch30_31 (monika_middleschool)
-        updates.topics[vv0_3_0] = changedIDs
+        updates.topics[_vdot2vstr("0.3.0")] = changedIDs
 
         # ensuring no refs to old dicts
         changedIDs = None
+
+
+    def _vdot2vstr(version_str):
+        """
+        Converts a version string that uses dots to the v#_#_# notation
+
+        IN:
+            version_str - version string with dots #.#.#.#
+
+        RETURNS: version string in the standard version notation:
+            v#_#_#_#
+        """
+        return "v" + "_".join(version_str.split("."))
