@@ -146,13 +146,6 @@ init python:
             # prepare the board as rendererr
             board = renpy.render(MASConnect4Displayable.BOARD_IMAGE, 1280, 720, st , at)
             
-            # prepare winning tile highlight as renderer
-            win_tile = renpy.render(MASConnect4Displayable.WIN_TILE_IMAGE, 1280, 720, st , at)
-            
-            # prepare the pins as renderer
-            ai_pin = renpy.render(MASConnect4Displayable.AI_IMAGE, 1280, 720, st , at)
-            player_pin = renpy.render(MASConnect4Displayable.PLAYER_IMAGE, 1280, 720, st , at)
-            
             # prepare col buttons as renderers
             # (they look the same, but their return values are different on init, thus, they are put in a list)
             col_buttons = [
@@ -207,18 +200,34 @@ init python:
             # draw the board
             render.blit(board, (MASConnect4Displayable.BOARD_X_POS, MASConnect4Displayable.BOARD_Y_POS))
             
-            # draw winning tile highlights
-            for t in self.win_tiles:
-                y, x = (int(t[0]) * MASConnect4Displayable.CEL_WIDTH, int(t[1]) * MASConnect4Displayable.CEL_HEIGHT)
-                render.blit(win_tile, (MASConnect4Displayable.CEL_BASE_X_POS + x, MASConnect4Displayable.CEL_BASE_Y_POS + y))
-            
-            # draw the pins
-            for key, pin in self.board.items():
-                y, x = (int(key[0]) * MASConnect4Displayable.CEL_WIDTH, int(key[1]) * MASConnect4Displayable.CEL_HEIGHT)
-                if pin == self.AI:
-                    render.blit(ai_pin, (MASConnect4Displayable.CEL_BASE_X_POS + x, MASConnect4Displayable.CEL_BASE_Y_POS + y))
-                elif pin == self.PLAYER:
-                    render.blit(player_pin, (MASConnect4Displayable.CEL_BASE_X_POS + x, MASConnect4Displayable.CEL_BASE_Y_POS + y))
+            if self.win_tiles:
+                # prepare winning tile highlight as renderer
+                win_tile = renpy.render(MASConnect4Displayable.WIN_TILE_IMAGE, 1280, 720, st , at)
+                
+                # draw winning tile highlights
+                for t in self.win_tiles:
+                    y, x = (int(t[0]) * MASConnect4Displayable.CEL_WIDTH, int(t[1]) * MASConnect4Displayable.CEL_HEIGHT)
+                    render.blit(win_tile, (MASConnect4Displayable.CEL_BASE_X_POS + x, MASConnect4Displayable.CEL_BASE_Y_POS + y))
+                
+            if self.PLAYER in self.board.values():
+                # prepare the pins as renderer
+                player_pin = renpy.render(MASConnect4Displayable.PLAYER_IMAGE, 1280, 720, st , at)
+                
+                # draw the player pins
+                for key, pin in self.board.items():
+                    y, x = (int(key[0]) * MASConnect4Displayable.CEL_WIDTH, int(key[1]) * MASConnect4Displayable.CEL_HEIGHT)
+                    if pin == self.PLAYER:
+                        render.blit(player_pin, (MASConnect4Displayable.CEL_BASE_X_POS + x, MASConnect4Displayable.CEL_BASE_Y_POS + y))
+                        
+            if self.AI in self.board.values():
+                # prepare the AI pins as renderer
+                ai_pin = renpy.render(MASConnect4Displayable.AI_IMAGE, 1280, 720, st , at)
+                
+                # draw the AI pins
+                for key, pin in self.board.items():
+                    y, x = (int(key[0]) * MASConnect4Displayable.CEL_WIDTH, int(key[1]) * MASConnect4Displayable.CEL_HEIGHT)
+                    if pin == self.AI:
+                        render.blit(ai_pin, (MASConnect4Displayable.CEL_BASE_X_POS + x, MASConnect4Displayable.CEL_BASE_Y_POS + y))
                     
             # draw col buttons
             for b in col_buttons:
