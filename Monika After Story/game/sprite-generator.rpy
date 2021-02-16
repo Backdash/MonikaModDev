@@ -50,6 +50,18 @@ init python in mas_sprites:
         """
         return exp[1] in "kn"
 
+    def is_follow_sprite(exp):
+        """
+        Checks if an exp is a follow sprite
+
+        IN:
+            exp - spritecode to check
+
+        OUT:
+            boolean - True if this is a follow sprite, False otherwise
+        """
+        return exp.endswith("_follow")
+
     def needs_tear_atl(exp):
         """
         Checks if this spritecode needs a streaming tears atl
@@ -93,6 +105,36 @@ init python in mas_sprites:
             )
         )
 
+    def generate_follow_sprite(exp):
+        """
+        Creates the follow version of the given sprite
+        """
+        exp = exp.replace("_follow", '')
+        look_left_img = replace_eyes(exp, "r")
+        look_right_img = replace_eyes(exp, "l")
+
+        if not renpy.has_image("monika " + exp):
+            generate_normal_sprite(exp)
+
+        if not renpy.has_image("monika " + look_left_img):
+            generate_normal_sprite(look_left_img)
+
+        if not renpy.has_image("monika " + look_right_img):
+            generate_normal_sprite(look_right_img)
+
+        m_prefix = "monika "
+        register_image(
+            ("monika", "{0}_follow".format(exp)),
+            #TODO: When we get Briar's sprites in, add a small displayable that'll handle follow sprites
+            store.ConditionSwitch(
+                "store.mas_windowutils.isCursorLeftOfMASWindow()", m_prefix + look_left_img,
+                "store.mas_windowutils.isCursorRightOfMASWindow()", m_prefix + look_right_img,
+                "True", m_prefix + exp,
+                #NOTE: This works only on r7, but does no harm on r6
+                predict_all=True
+            )
+        )
+
     def add_static_sprite_alias(exp):
         """
         Registers an alias for static sprites
@@ -112,7 +154,7 @@ init python in mas_sprites:
         """
         Generates sprites for standard open/closed eye variants
 
-        DOES NOT HANDLE WINKS/TEARS
+        DOES NOT HANDLE WINKS
 
         IN:
             exp - spritecode to generate sprites for
@@ -194,5 +236,7 @@ init python in mas_sprites:
 
         if is_wink_sprite(exp):
             generate_wink_sprite(exp)
+        elif is_follow_sprite(exp):
+            generate_follow_sprite(exp)
         else:
             generate_normal_sprite(exp)

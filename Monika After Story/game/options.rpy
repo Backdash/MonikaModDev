@@ -14,7 +14,7 @@ init -999:
     define config.name = "Monika After Story"
 
     ## The version of the game.
-    define config.version = "0.11.9"
+    define config.version = "0.12.0"
 
 ## Determines if the title given above is shown on the main menu screen. Set
 ## this to False to hide the title.
@@ -149,7 +149,7 @@ define config.allow_skipping = True
 define config.has_autosave = False
 define config.autosave_on_quit = False
 define config.autosave_slots = 0
-define config.layers = [ 'master', 'transient', 'screens', 'overlay', 'front' ]
+define config.layers = ["master", "transient", "minigames", "screens", "overlay", "front"]
 define config.image_cache_size = 64
 define config.debug_image_cache = config.developer
 define config.predict_statements = 5

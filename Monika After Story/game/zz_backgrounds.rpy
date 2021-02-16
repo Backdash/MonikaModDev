@@ -2134,7 +2134,7 @@ init -10 python:
 
         def _deco_add(self, deco=None, tag=None):
             """
-            Adds deco object to the background. 
+            Adds deco object to the background.
             NOTE: do NOT use this. This should only be used by the public
             show/hide deco functions as well as other internal stuff.
 
@@ -2154,7 +2154,7 @@ init -10 python:
         def _deco_rm(self, name):
             """
             Removes deco object from this background.
-            NOTE: do NOT use this. This should only be used by the public 
+            NOTE: do NOT use this. This should only be used by the public
             show/hide deco functions as well as other internal stuff
 
             IN:
@@ -2184,7 +2184,7 @@ init -10 python:
                 change_info - MASBackgroundChangeInfo object
 
             OUT:
-                change_info - MASBackgroundChangeInfo object with shows 
+                change_info - MASBackgroundChangeInfo object with shows
                     populated.
             """
             for vis_tag in store.mas_deco.vis_store:
@@ -2522,7 +2522,7 @@ init -10 python:
             MASImageTagDecoDefinition.register_img, except bg_id is provided
             by this BG object.
 
-            NOTE: this is NOT required if you already used 
+            NOTE: this is NOT required if you already used
                 MASImageTagDefinition to define the associated tags.
 
             IN:
@@ -2631,10 +2631,10 @@ init -20 python in mas_background:
             Constructor
 
             IN:
-                hides - dict of image tags and MASAdvancedDecoFrames to 
+                hides - dict of image tags and MASAdvancedDecoFrames to
                     hide in the dissolve
                     (Default: None)
-                shows - dict of image tags and MASAdvancedDecoFrames to 
+                shows - dict of image tags and MASAdvancedDecoFrames to
                     show in the dissolve
                     (Default: None)
             """
@@ -2645,6 +2645,12 @@ init -20 python in mas_background:
 
             self.hides = hides
             self.shows = shows
+
+        def __repr__(self):
+            """
+            Returns description of this object
+            """
+            return "<BackgroundChangeInfo: (hides: {0}, shows: {1})>".format(self.hides, self.shows)
 
         def __len__(self):
             return len(self.hides) + len(self.shows)
@@ -3025,8 +3031,8 @@ init -2 python in mas_background:
 
 
 init -20 python in mas_background:
-    
-    # background ID definitions 
+
+    # background ID definitions
     # NOTE: you do NOT need to define ids here. Assigning IDs here just
     #   makes it easier for MASImageTagDefintions
     MBG_DEF = "spaceroom"

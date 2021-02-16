@@ -1225,6 +1225,8 @@ init -1 python:
     #
     # NAMING SCHEME:
     # mas_acs_<accessory name>
+    # NOTE: creating an object reference is optional, EXCEPt if you need to
+    #   build a selector object.
     #
     # <accessory name> MUST BE UNIQUE
     #
@@ -1244,6 +1246,178 @@ init -1 python:
     # General description of what the object is, where it is located
 
     # TODO: this should be sorted by alpha, using the ID
+
+    ### AHOGE BENT
+    ## ahoge_bent
+    # A bent ahoge
+    # thanks Briar Young
+    store.mas_sprites.init_acs(MASAccessory(
+        "ahoge_bent",
+        "ahoge_bent",
+        MASPoseMap(
+            default="0",
+            l_default="5"
+        ),
+        stay_on_start=True,
+        acs_type="ahoge",
+        rec_layer=MASMonika.AFH_ACS,
+        priority=7,
+    ))
+
+    ### AHOGE CURL
+    ## ahoge_curl
+    # A curled ahoge
+    # thanks Briar Young
+    store.mas_sprites.init_acs(MASAccessory(
+        "ahoge_curl",
+        "ahoge_curl",
+        MASPoseMap(
+            default="0",
+            l_default="5"
+        ),
+        stay_on_start=True,
+        acs_type="ahoge",
+        rec_layer=MASMonika.AFH_ACS,
+        priority=7,
+    ))
+
+    ### AHOGE DOUBLE
+    ## ahoge_double
+    # A double ahoge
+    # thanks Briar Young
+    store.mas_sprites.init_acs(MASAccessory(
+        "ahoge_double",
+        "ahoge_double",
+        MASPoseMap(
+            default="0",
+            l_default="5"
+        ),
+        stay_on_start=True,
+        acs_type="ahoge",
+        rec_layer=MASMonika.AFH_ACS,
+        priority=7,
+    ))
+
+    ### AHOGE HEART
+    ## ahoge_heart
+    # A heart-shaped ahoge
+    # thanks Briar Young
+    store.mas_sprites.init_acs(MASAccessory(
+        "ahoge_heart",
+        "ahoge_heart",
+        MASPoseMap(
+            default="0",
+            l_default="5"
+        ),
+        stay_on_start=True,
+        acs_type="ahoge",
+        rec_layer=MASMonika.AFH_ACS,
+        priority=7,
+    ))
+
+    ### AHOGE LIGHTNING
+    ## ahoge_lightning
+    # A lightning-shaped ahoge
+    # thanks Briar Young
+    store.mas_sprites.init_acs(MASAccessory(
+        "ahoge_lightning",
+        "ahoge_lightning",
+        MASPoseMap(
+            default="0",
+            l_default="5"
+        ),
+        stay_on_start=True,
+        acs_type="ahoge",
+        rec_layer=MASMonika.AFH_ACS,
+        priority=7,
+    ))
+
+    ### AHOGE SHARP
+    ## ahoge_sharp
+    # A sharp ahoge
+    # thanks Briar Young
+    store.mas_sprites.init_acs(MASAccessory(
+        "ahoge_sharp",
+        "ahoge_sharp",
+        MASPoseMap(
+            default="0",
+            l_default="5"
+        ),
+        stay_on_start=True,
+        acs_type="ahoge",
+        rec_layer=MASMonika.AFH_ACS,
+        priority=7,
+    ))
+
+    ### AHOGE SIMPLE
+    ## ahoge_simple
+    # A simple ahoge
+    # thanks Briar Young
+    store.mas_sprites.init_acs(MASAccessory(
+        "ahoge_simple",
+        "ahoge_simple",
+        MASPoseMap(
+            default="0",
+            l_default="5"
+        ),
+        stay_on_start=True,
+        acs_type="ahoge",
+        rec_layer=MASMonika.AFH_ACS,
+        priority=7,
+    ))
+
+    ### AHOGE SMALL
+    ## ahoge_small
+    # A small ahoge
+    # thanks Briar Young
+    store.mas_sprites.init_acs(MASAccessory(
+        "ahoge_small",
+        "ahoge_small",
+        MASPoseMap(
+            default="0",
+            l_default="5"
+        ),
+        stay_on_start=True,
+        acs_type="ahoge",
+        rec_layer=MASMonika.AFH_ACS,
+        priority=7,
+    ))
+
+    ### AHOGE SWOOP
+    ## ahoge_swoop
+    # A swooping ahoge
+    # NOTE: this one juts out in front so it should be rendered later than
+    #   the others.
+    # thanks Briar Young
+    store.mas_sprites.init_acs(MASAccessory(
+        "ahoge_swoop",
+        "ahoge_swoop",
+        MASPoseMap(
+            default="0",
+            l_default="5"
+        ),
+        stay_on_start=True,
+        acs_type="ahoge",
+        rec_layer=MASMonika.AFH_ACS,
+        priority=13,
+    ))
+
+    ### AHOGE TWISTY
+    ## ahoge_twisty
+    # A twisted ahoge
+    # thanks Briar Young
+    store.mas_sprites.init_acs(MASAccessory(
+        "ahoge_twisty",
+        "ahoge_twisty",
+        MASPoseMap(
+            default="0",
+            l_default="5"
+        ),
+        stay_on_start=True,
+        acs_type="ahoge",
+        rec_layer=MASMonika.AFH_ACS,
+        priority=7,
+    ))
 
     ### Candy canes
     ## candycane
@@ -1603,9 +1777,9 @@ init -1 python:
             p5="5"
         ),
         acs_type="front-hair-flower-crown",
-        priority=20,
+        priority=12,
         stay_on_start=True,
-        rec_layer=MASMonika.PST_ACS,
+        rec_layer=MASMonika.AFH_ACS,
     )
     store.mas_sprites.init_acs(mas_acs_flower_crown)
 

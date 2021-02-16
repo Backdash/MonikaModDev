@@ -9,6 +9,7 @@ init -1 python in mas_dev_unit_tests:
 #        ("Event - yearAdjust", "dev_unit_test_event_yearadjust", False, False),
         ("MASHistorySaver", "dev_unit_test_mhs", False, False),
         ("MASHistorySaver - correct_pbday_mhs", "dev_unit_test_mhs_cpm", False, False),
+        ("UTC APIs", "dev_unit_test_utc_api", False, False),
     ]
 
     class MASUnitTest(object):
@@ -232,6 +233,25 @@ init -1 python in mas_dev_unit_tests:
             ))
             return outcome
 
+        def assertIdentity(self, expected, actual):
+            """
+            Asserts if the two items point to the same thing
+
+            IN:
+                expected - expected item
+                actual - actual item
+
+            RETURNS: True if the same reference, False if not
+            """
+            outcome = actual is expected
+            self.tests.append(MASUnitTest(
+                self.test_name,
+                outcome,
+                expected,
+                actual
+            ))
+            return outcome
+
         def assertIsNone(self, actual):
             """
             Asserts if the given item is None
@@ -413,7 +433,7 @@ init 5 python:
 
 label dev_unit_tests:
     $ final_item = ("RETURN", False, False, False, 20)
-    call screen mas_gen_scrollable_menu(store.mas_dev_unit_tests.unit_tests, store.mas_dev_unit_tests.SCROLLABLE_MENU_AREA, store.mas_dev_unit_tests.SCROLLABLE_MENU_XALIGN, final_item)
+    call screen mas_gen_scrollable_menu(store.mas_dev_unit_tests.unit_tests, store.mas_dev_unit_tests.SCROLLABLE_MENU_TALL_AREA, store.mas_dev_unit_tests.SCROLLABLE_MENU_XALIGN, final_item)
 
     if _return == "RETURN":
         return
@@ -2459,5 +2479,40 @@ label dev_unit_test_mhs_cpm:
         rs_mhs(prev_data)
 
     call dev_unit_tests_finish_test(mhs_tester)
+
+    return
+
+label dev_unit_test_utc_api:
+    m "Running tests..."
+
+    python:
+        local_time = datetime.datetime.now().replace(microsecond=0)
+        utc_time = datetime.datetime.utcnow().replace(microsecond=0)
+
+        utc_tester = store.mas_dev_unit_tests.MASUnitTester()
+
+        utc_tester.prepareTest("get_localzone")
+        local_tz = store.mas_utils.get_localzone()
+        utc_tester.assertIdentity(store.mas_utils._tz_cache, local_tz)
+
+        utc_tester.prepareTest("reload_localzone")
+        utc_tester.assertFalse(store.mas_utils.reload_localzone() is local_tz)
+
+        utc_tester.prepareTest("local to utc")
+        new_time = store.mas_utils.local_to_utc(local_time)
+        utc_tester.assertIsNone(new_time.tzinfo)
+        utc_tester.assertEqual(utc_time, new_time)
+
+        utc_tester.prepareTest("utc to any")
+        new_time = store.mas_utils.utc_to_any(utc_time, local_tz)
+        utc_tester.assertIsNotNone(new_time.tzinfo)
+        utc_tester.assertEqual(local_time, new_time.replace(tzinfo=None))
+
+        utc_tester.prepareTest("utc to local")
+        new_time = store.mas_utils.utc_to_local(utc_time)
+        utc_tester.assertIsNotNone(new_time.tzinfo)
+        utc_tester.assertEqual(local_time, new_time.replace(tzinfo=None))
+
+    call dev_unit_tests_finish_test(utc_tester)
 
     return

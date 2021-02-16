@@ -18,11 +18,13 @@ init python in mas_sprite_decoder:
         "c": "crazy",
         "r": "right",
         "l": "left",
-        "f": "soft",
         "h": "closedhappy",
         "d": "closedsad",
         "k": "winkleft",
         "n": "winkright",
+        "f": "soft",
+        "m": "smugleft",
+        "g": "smugright",
     }
 
     MOUTH_MAP = {

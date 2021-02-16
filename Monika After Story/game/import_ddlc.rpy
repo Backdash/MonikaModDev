@@ -94,7 +94,7 @@ label import_ddlc_persistent:
         ddlc_pfile.close()
 
         #Bring ddlc_persistent data up to date with current version
-        renpy.call_in_new_context("vv_updates_topics") # init the updates lists
+        store.mas_versions.init()
         ddlc_persistent = updateTopicIDs("v030", ddlc_persistent)
         ddlc_persistent = updateTopicIDs("v031", ddlc_persistent)
         ddlc_persistent = updateTopicIDs("v032", ddlc_persistent)

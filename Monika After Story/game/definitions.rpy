@@ -3403,7 +3403,6 @@ python early:
             """
             self.box[headline] = msg
 
-
     class MASExtraPropable(object):
         """
         base class that supports ex_prop-based extensions.
@@ -3532,6 +3531,316 @@ python early:
             except:
                 return ""
 
+init 25 python:
+    class PauseDisplayable(renpy.Displayable):
+        """
+        Pause until click variant of Pause
+        This is because normal pause until click is broken for some reason
+        """
+        def __init__(self):
+            super(renpy.Displayable, self).__init__()
+
+        def render(self, width, height, st, at):
+            # dont actually render anything
+            return renpy.Render(0, 0)
+
+        def event(self, ev, x, y, st):
+            if ev.type == pygame.MOUSEBUTTONDOWN and ev.button not in (4, 5):
+                return True
+
+            raise renpy.IgnoreEvent()
+
+    class PauseDisplayableEvent(object):
+        """
+        Class to represent events for PauseDisplayableWithEvents
+        """
+        def __init__(self, timedelta, functions, repeatable=False, invoke_in_new_context=False):
+            """
+            Constructor for events
+
+            IN:
+                timedelta - datetime.timedelta after which we'll run the event
+                functions - the func or a list of the funcs that get called on the event
+                    NOTE: if you need args/kwargs use renpy.partial
+                repeatable - whether or not we'll repeat the event
+                    (Default: False)
+                invoke_in_new_context - whether or not we'll invoke the functions
+                    to avoid interaction issues
+                    (Default: False)
+            """
+            self.timedelta = timedelta
+
+            if not isinstance(functions, tuple):
+                if isinstance(functions, list):
+                    functions = tuple(functions)
+
+                else:
+                    functions = (functions,)
+
+            self.functions = functions
+            self.repeatable = repeatable
+            self.invoke_in_new_context = invoke_in_new_context
+
+            self.end_datetime = None
+
+        def set_end_datetime(self, value):
+            """
+            Sets end datetime for this event
+
+            IN:
+                value - value to set
+            """
+            self.end_datetime = value
+
+        def __repr__(self):
+            """
+            Representation of this obj
+            """
+            return "<PauseDisplayableEvent (timedelta {0}, functions {1})>".format(self.timedelta, self.functions)
+
+        def __call__(self):
+            """
+            Executes this event
+            """
+            for func in self.functions:
+                if self.invoke_in_new_context:
+                    renpy.invoke_in_new_context(func)
+
+                else:
+                    func()
+
+    class PauseDisplayableWithEvents(renpy.Displayable):
+        """
+        Advanced pause displayable that supports hotkeys and can run events during pause
+        """
+        # The keysims that are allowed during pause
+        _RESPECTED_KEYSIMS = {
+            "screenshot": renpy.store._screenshot,
+            "toggle_fullscreen": renpy.toggle_fullscreen,
+            "mas_hide_windows": renpy.store._mas_hide_windows,
+            "mas_game_menu": renpy.store._mas_game_menu,
+            "change_music": renpy.store._mas_hk_select_music,
+            "mute_music": renpy.store._mas_hk_mute_music,
+            "dec_musicvol": renpy.store._mas_hk_dec_musicvol,
+            "inc_musicvol": renpy.store._mas_hk_inc_musicvol
+        }
+
+        # An attempt to fix renpy's memory leak
+        CRUTCH_EVENT =  PauseDisplayableEvent(
+            datetime.timedelta(minutes=5),
+            renpy.restart_interaction,
+            repeatable=True
+        )
+
+        def __init__(self, events=None, respected_keysims=None):
+            """
+            Constructor for this displayable
+
+            IN:
+                events - a single PauseDisplayableEvent object or a list of PauseDisplayableEvent objects
+                    If None, no event will be ran
+                    (Default: None)
+                respected_keysims - keysims that are respected during this pause, if None we'll use some default ones.
+                    If not None, assuming it's a dict with the name of a defined keybinding and its function
+                    (Default: None)
+            """
+            super(renpy.Displayable, self).__init__()
+
+            if events is None:
+                events = [PauseDisplayableWithEvents.CRUTCH_EVENT]
+
+            elif isinstance(events, tuple):
+                events = list(events)
+                events.append(PauseDisplayableWithEvents.CRUTCH_EVENT)
+
+            elif isinstance(events, list):
+                events.append(PauseDisplayableWithEvents.CRUTCH_EVENT)
+
+            # Assuming it's a single PauseDisplayableEvent
+            else:
+                events = [events, PauseDisplayableWithEvents.CRUTCH_EVENT]
+
+            events.sort(key=PauseDisplayableWithEvents.__sort_key_td)
+
+            self.events = events
+            self.__events = list(events)
+            self.respected_keysims = respected_keysims or PauseDisplayableWithEvents._RESPECTED_KEYSIMS
+            self.__abort_events = False
+            self.should_enable_afm = None
+
+        def __repr__(self):
+            """
+            Representation of this obj
+            """
+            return "<PauseDisplayableWithEvents ({0})>".format(self.events)
+
+        def __set_end_datetimes(self):
+            """
+            Sets end datetimes for events using current time
+            """
+            _now = datetime.datetime.now()
+            for event in self.events:
+                event.set_end_datetime(_now + event.timedelta)
+
+        def __reset_events(self):
+            """
+            Resets events state
+            """
+            self.events = self.__events[:]
+            for ev in self.events:
+                ev.set_end_datetime(None)
+
+        def start(self):
+            """
+            Starts this displayable
+            """
+            self.should_enable_afm = store._preferences.afm_enable
+            self.__set_end_datetimes()
+            ui.implicit_add(self)
+            ui.interact()
+
+        def stop(self):
+            """
+            Stops this disp's interaction, aborts its event
+            """
+            ui.remove(self)
+            self.__abort_events = True
+            self.should_enable_afm = None
+
+            if renpy.game.context().interacting:
+                renpy.end_interaction(False)
+
+        def reset(self):
+            """
+            Completely resets this disp's state
+            """
+            ui.remove(self)
+            self.__reset_events()
+            self.__abort_events = False
+            self.should_enable_afm = None
+
+            if renpy.game.context().interacting:
+                renpy.end_interaction(False)
+
+        def __get_events_for_time(self):
+            """
+            Returns the events that we need to run NOW
+            and pops them from the event list
+
+            OUT:
+                generator over the events
+
+            ASSUMES:
+                the events are sorted
+            """
+            _now = datetime.datetime.now()
+
+            for event in self.events[:]:
+                if _now >= event.end_datetime:
+                    self.events.remove(event)
+                    yield event
+
+                # no need to keep iter, we can return at this point
+                else:
+                    return
+
+        def __set_timeout(self):
+            """
+            Sets a timeout for event generator
+            """
+            # No need to do anything if we have no pending events
+            if not self.events:
+                return
+
+            _now = datetime.datetime.now()
+            _end_dt = self.events[0].end_datetime
+
+            if _end_dt >= _now:
+                timeout = (_end_dt - _now).total_seconds() + 0.1
+
+            else:
+                timeout = 0.1
+
+            renpy.timeout(timeout)
+
+        def render(self, width, height, st, at):
+            """
+            Our render
+            """
+            # We don't render anything
+            return renpy.Render(0, 0)
+
+        def __check_keysims(self, ev):
+            """
+            Checks if an event matches the respected keysims of this displayable
+            If it does, run the appropriate func
+
+            OUT:
+                True if we ran a func, False otherwise
+            """
+            for keysim in self.respected_keysims:
+                if renpy.map_event(ev, keysim):
+                    self.respected_keysims[keysim]()
+                    return True
+
+            return False
+
+        def event(self, ev, x, y, st):
+            """
+            Handles interactions
+            """
+            # Should run our time event?
+            if ev.type == renpy.display.core.TIMEEVENT:
+                for event in self.__get_events_for_time():
+                    if not self.__abort_events:
+                        event()
+                        if event.repeatable:
+                            event.set_end_datetime(datetime.datetime.now() + event.timedelta)
+                            store.mas_utils.insert_sort(self.events, event, PauseDisplayableWithEvents.__sort_key_dt)
+
+                    # If we aborted, we need to quit asap
+                    else:
+                        return None
+
+                self.__set_timeout()
+                raise renpy.IgnoreEvent()
+
+            # Detected a m1 click? Interrupt pause
+            elif ev.type == pygame.MOUSEBUTTONDOWN and ev.button == 1:
+                self.__abort_events = True
+                ui.remove(self)
+                if self.should_enable_afm:
+                    self.should_enable_afm = None
+                    store._preferences.afm_enable = True
+                return True
+
+            # Other kind of event? Check our keysims
+            elif self.__check_keysims(ev):
+                raise renpy.IgnoreEvent()
+
+            # Otherwise continue listening
+            return None
+
+        def per_interact(self):
+            """
+            We don't need to do anything here
+            """
+            return
+
+        @staticmethod
+        def __sort_key_td(ev):
+            """
+            Sort key for sorting by ev's timedelta
+            """
+            return ev.timedelta
+
+        @staticmethod
+        def __sort_key_dt(ev):
+            """
+            Sort key for sorting by ev's end_datetime
+            """
+            return ev.end_datetime
+
 # special store that contains powerful (see damaging) functions
 init -1 python in _mas_root:
     import store
@@ -3621,10 +3930,13 @@ init -1 python in _mas_root:
         renpy.game.persistent._mas_chess_stats = {
             "wins": 0,
             "losses": 0,
-            "draws": 0
+            "draws": 0,
+            "practice_wins": 0,
+            "practice_losses": 0,
+            "practice_draws": 0
         }
         renpy.game.persistent._mas_chess_quicksave = ""
-        renpy.game.persistent.chess_strength = 20
+        renpy.game.persistent._mas_chess_difficulty = (0, 1)
         renpy.game.persistent._mas_chess_dlg_actions = dict()
         renpy.game.persistent._mas_chess_timed_disable = None
         renpy.game.persistent._mas_chess_3_edit_sorry = False
@@ -3663,6 +3975,7 @@ init -1 python in _mas_root:
 
 init -999 python:
     import os
+    import pytz
 
     _OVERRIDE_LABEL_TO_BASE_LABEL_MAP = dict()
 
@@ -3672,6 +3985,16 @@ init -999 python:
             os.mkdir(os.path.normcase(renpy.config.basedir + "/log"))
         except:
             pass
+
+    # load timezone info
+    # NOTE: this is needed since initialzation of pytz will not include find
+    #   timezones if they are included locally
+    # NOTE: this means that tz info is not guaranteed until this call.
+    pytz.load_resources(os.path.join(
+        renpy.config.gamedir,
+        "python-packages",
+        "pytz",
+    ))
 
     def mas_override_label(label_to_override, override_label):
         """
@@ -3705,6 +4028,8 @@ init -995 python in mas_utils:
     import time
     import traceback
     import sys
+    import pytz
+    import tzlocal
     #import tempfile
     from os.path import expanduser
     from renpy.log import LogFile
@@ -3721,6 +4046,9 @@ init -995 python in mas_utils:
         "{": "{{",
         "[": "[["
     }
+
+    # timezone cache
+    _tz_cache = None
 
     def compareVersionLists(curr_vers, comparative_vers):
         """
@@ -3940,6 +4268,112 @@ init -995 python in mas_utils:
         RETURNS: hours as float
         """
         return (duration.days * 24) + (duration.seconds / 3600.0)
+
+
+    def get_localzone():
+        """
+        Wrapper around tzlocal.get_localzone() that won't raise exceptions
+
+        NOTE: this caches the timezone. Call reload_localzone() to gurantee
+        timezone is updated.
+
+        RETURNS: pytz tzinfo object of the local time zone.
+            if system timezone info is configured wrong, then a special-MAS
+            version of a timezone is returned instead. This version works
+            like a static, unchanging timezone, using the time.timezone/altzone
+            values.
+        """
+        global _tz_cache
+        if _tz_cache is not None:
+            return _tz_cache
+
+        try:
+            _tz_cache = tzlocal.get_localzone()
+        except:
+            _tz_cache = store.MASLocalTz.create()
+
+        return _tz_cache
+
+
+    def reload_localzone():
+        """
+        Reloads the cached localzone.
+
+        RETURNS: see get_localzone()
+        """
+        try:
+            _tz_cache = tzlocal.reload_localzone()
+        except:
+            _tz_cache = store.MASLocalTz.reload()
+
+        return _tz_cache
+
+
+    def local_to_utc(local_dt, latest=True):
+        """
+        Converts the given local datetime into a UTC datetime.
+
+        NOTE: you shouldn't be using this. UTC time should be where you do
+        dt manipulations and use utc_to_local to get a localized dt for human
+        reading. datetime has a utcnow() function so use that to get started
+        instead of now()
+
+        IN:
+            local_dt - datetime to convert, should be naive (no tzinfo)
+            latest - True will attempt to reload the local timezone before
+                doing the conversion. If dealing with an old datetime, you
+                might want to pass False
+                (Default: True)
+
+        RETURNS:
+            UTC-based naive datetime (no tzinfo).
+            This is safe for pickling/saving to persistent.
+        """
+        if latest:
+            local_tz = reload_localzone()
+        else:
+            local_tz = get_localzone()
+
+        return local_tz.localize(local_dt).astimezone(pytz.utc).replace(tzinfo=None)
+
+
+    def utc_to_any(utc_dt, target_tz):
+        """
+        Converts the given UTC datetime into any tz datetime
+
+        IN:
+            utc_dt - datetime to convert, should be naive (no tzinfo)
+            target_tz - pytz.tzinfo object of the timezone to convert to
+
+        RETURNS:
+            datetime converted to the target timezone.
+            NOTE: DO NOT PICKLE THIS OR SAVE TO PERSISTENT.
+        """
+        return pytz.utc.localize(utc_dt).astimezone(target_tz)
+
+
+    def utc_to_local(utc_dt, latest=True):
+        """
+        Converts the given UTC datetime into a local datetime
+
+        IN:
+            utc_dt - datetime to convert, should be naive (no tzinfo)
+            latest - True will attempt to reload the local timezone before
+                doing the conversion. If dealing with an old datetime, you
+                might want to pass False
+                (Default: True)
+
+        RETURNS:
+            localized datetime with tzinfo of this zone (see pytz docs)
+            NOTE: DO NOT PICKLE THIS or SAVE TO PERSISTENT. While pytz can
+                safely pickle, we do not want to force a dependency on the
+                persistent.
+        """
+        if latest:
+            return utc_to_any(utc_dt, reload_localzone())
+
+        return utc_to_any(utc_dt, get_localzone())
+
 
     def tryparseint(value, default=0):
         """
@@ -4265,7 +4699,7 @@ init -995 python in mas_utils:
                     self.write("%s", platform.platform())
                 except:
                     self.write("Unknown platform.")
-                self.write("%s", renpy.version)
+                self.write("%s", renpy.version())
                 self.write("%s %s", renpy.config.name, renpy.config.version)
                 self.write("")
 
@@ -4428,13 +4862,26 @@ init -100 python in mas_utils:
             return  initial_date + (datetime.date(initial_date.year + years, 1, 1)
                                 - datetime.date(initial_date.year, 1, 1))
 
+    def add_months(starting_date, months):
+        """
+        Takes a datetime object and add a number of months
+        Handles the case where the new month doesn't have that day
 
-    #Takes a datetime object and add a number of months
-    #Handles the case where the new month doesn't have that day
-    def add_months(starting_date,months):
+        IN:
+            starting_date - date representing the date to add months to
+            months - amount of months to add
+
+        OUT:
+            datetime.date representing the inputted date with the corresponding months added
+        """
         old_month=starting_date.month
         old_year=starting_date.year
         old_day=starting_date.day
+
+        #To handle F29 consistently with add_years, we explicitly manage it
+        if months and (months/12 + old_year) % 4 != 0 and old_month == 2 and old_day == 29:
+            old_month = 3
+            old_day = 1
 
         # get the total of months
         total_months = old_month + months
@@ -6323,6 +6770,50 @@ init 21 python:
 
         return rv
 
+    def mas_getMousePos():
+        """
+        Gets the mouse position in terms of physical screen size
+
+        OUT:
+            tuple, (x, y) coordinates representing the mouse position
+        """
+        virtual_width = config.screen_width * 10000
+        virtual_height = config.screen_height * 10000
+        physical_width, physical_height = renpy.get_physical_size()
+        dw, dh = pygame.display.get_surface().get_size()
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        #Converts the mouse coordinates from pygame's relative screen size coords (based on config vars) to physical size
+        #NOTE: THIS IS NEEDED FOR UI SCALING OTHER THAN 100%
+        mouse_x = (mouse_x * physical_width) / dw
+        mouse_y = (mouse_y * physical_height) / dh
+
+        r = None
+        #This part calculates the "true" position, it can handle weirdly sized screens
+        if virtual_width / (virtual_height / 10000) > physical_width * 10000 / physical_height:
+            r = virtual_width / physical_width
+            mouse_y -= (physical_height - virtual_height / r) / 2
+        else:
+            r = virtual_height / physical_height
+            mouse_x -= (physical_width - virtual_width / r) / 2
+
+        newx = (mouse_x * r) / 10000
+        newy = (mouse_y * r) / 10000
+
+        return (newx, newy)
+
+    def mas_quipExp(exp_code):
+        """
+        Allows expressions to be inserted into quips directly via function substitution
+
+        (This is effectively a renpy.show that returns '' instead of None)
+
+        IN:
+            exp_code - code of the expression as str (ex: '1hua')
+        """
+        renpy.show("monika " + exp_code)
+        return ""
+
 # Music
 define audio.t1 = "<loop 22.073>bgm/1.ogg"  #Main theme (title)
 define audio.t2 = "<loop 4.499>bgm/2.ogg"   #Sayori theme
@@ -7539,7 +8030,6 @@ default persistent._mas_apology_database = dict()
 default persistent._mas_undo_action_rules = dict()
 default persistent._mas_strip_dates_rules = dict()
 default persistent.gender = "M" #Assume gender matches the PC
-default persistent.chess_strength = 3
 default persistent.closed_self = False
 default persistent._mas_game_crashed = False
 default persistent.seen_monika_in_room = False

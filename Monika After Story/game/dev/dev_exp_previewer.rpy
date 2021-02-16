@@ -140,6 +140,8 @@ init 999 python:
                 "k": "winkleft",
                 "n": "winkright",
                 "f": "soft",
+                "m": "smugleft",
+                "g": "smugright",
             },
             "eyebrows": {
                 "f": "furrowed",
@@ -230,6 +232,8 @@ init 999 python:
                 "k": "Wink Left",
                 "n": "Wink Right",
                 "f": "Soft",
+                "m": "Smug Left",
+                "g": "Smug Right",
             },
             "eyebrows": {
                 "f": "Furrowed",
@@ -361,6 +365,8 @@ init 999 python:
                 "k",
                 "n",
                 "f",
+                "m",
+                "g",
             ],
             "eyebrows": [
                 "f",

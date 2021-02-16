@@ -65,7 +65,7 @@ jobs:
       - name: rpy lint
         run: |
           cd renpy
-          ./renpy.sh "../mas0105/" lint > renpy_output
+          ./renpy.sh "../mas0105/" lint &> renpy_output
           python ../tools/renpy_lint_parser.py
           cat renpy_output_clean
 
