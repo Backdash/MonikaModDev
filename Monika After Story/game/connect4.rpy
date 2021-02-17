@@ -64,13 +64,13 @@ init python:
         BUTTON_Y = BOARD_Y_POS + BOARD_HEIGHT - BUTTON_HEIGHT
         
         # images definition
-        AI_IMAGE = Image("mod_assets/connect4/monika_pin.png")
-        PLAYER_IMAGE = Image("mod_assets/connect4/player_pin.png")
-        BOARD_IMAGE = Image("mod_assets/connect4/connect4_board.png")
-        WIN_TILE_IMAGE = Image("mod_assets/connect4/win_tile.png")
-        COL_BUTTON_IDLE_IMAGE = Image("mod_assets/connect4/arrow_down_idle.png")
-        COL_BUTTON_HOVER_IMAGE = Image("mod_assets/connect4/arrow_down_hover.png")
-        COL_BUTTON_INSENSITIVE_IMAGE = Image("mod_assets/connect4/arrow_down_insensitive.png")
+        AI_IMAGE = Image("mod_assets/games/connect4/monika_pin.png")
+        PLAYER_IMAGE = Image("mod_assets/games/connect4/player_pin.png")
+        BOARD_IMAGE = Image("mod_assets/games/connect4/connect4_board.png")
+        WIN_TILE_IMAGE = Image("mod_assets/games/connect4/win_tile.png")
+        COL_BUTTON_IDLE_IMAGE = Image("mod_assets/games/connect4/arrow_down_idle.png")
+        COL_BUTTON_HOVER_IMAGE = Image("mod_assets/games/connect4/arrow_down_hover.png")
+        COL_BUTTON_INSENSITIVE_IMAGE = Image("mod_assets/games/connect4/arrow_down_insensitive.png")
         
         def __init__(self):
             # prepare the Displayable
