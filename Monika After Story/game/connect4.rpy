@@ -72,14 +72,14 @@ init python:
         COL_BUTTON_HOVER_IMAGE = Image("mod_assets/games/connect4/arrow_down_hover.png")
         COL_BUTTON_INSENSITIVE_IMAGE = Image("mod_assets/games/connect4/arrow_down_insensitive.png")
         
-        def __init__(self):
+        def __init__(self, first_turn):
             # prepare the Displayable
             super(MASConnect4Displayable, self).__init__()
             
             # init the variables
             self.is_game_over = False
             self.quit_game = False
-            self.turn = renpy.random.choice([self.AI, self.PLAYER])
+            self.turn = first_turn
             self.board = dict()
             self.full_col = set()
             self.turn_move_success = False
@@ -456,10 +456,11 @@ init python:
                         break
                 self.turn_switch()
                 
-                self.examine_board()
-                if len(self.win_tiles) > 0:
-                    say = " ".join(self.win_tiles)
-                    renpy.say(m, say, interact=False)
+                # Debug Stuff, Don't Mind These
+                # self.examine_board()
+                # if len(self.win_tiles) > 0:
+                    # say = " ".join(self.win_tiles)
+                    # renpy.say(m, say, interact=False)
                 
                 if self.quit_game:
                     return interact
@@ -579,48 +580,73 @@ init python:
     
     
 label game_connect4:
-    m "Let's start!"
-    
-    label start_connect4:
-        pass
+    m 2esa "Wanna play connect 4?"
+    $ connect4_play_again = True
+    while connect4_play_again:
+        m 3eub "First, let's flip a coin."
+        $ choice = random.randint(0, 1) == 0
+        if choice:
+            $ connect4_first_turn = 2
+            m 2eua "Oh, looks like you go first, [player]."
+        else:
+            $ connect4_first_turn = 1
+            m 2eua "Looks like I go first, [player]."
+        m 2hua "Let's start~!"
         
-    window hide None
-    show monika 1eua at t21
-    python:
-        quick_menu = False
-        
-        connect4_displayable_obj = MASConnect4Displayable()
-        connect4_displayable_obj.show()
-        results = connect4_displayable_obj.game_loop()
-        connect4_displayable_obj.hide()
-        
-        quick_menu = True
-        
-        winner, ending = results
-        
-    label .connect4_end:
-        pass
+        label start_connect4:
+            pass
+            
+        window hide None
+        show monika 1eua at t21
+        python:
+            quick_menu = False
+            
+            connect4_displayable_obj = MASConnect4Displayable(connect4_first_turn)
+            connect4_displayable_obj.show()
+            results = connect4_displayable_obj.game_loop()
+            connect4_displayable_obj.hide()
+            
+            quick_menu = True
+            
+            winner, ending = results
+            
+        label .connect4_end:
+            pass
 
-    show monika at t11
-    
-    if winner == False:
+        show monika at t11
+        
+        if winner == False:
+            if ending == 0:
+                m 2wud "Oh, it's a draw."
+                m 2rksdlb "I mean, I saw it coming, but it's quite a rare circumstance."
+            elif ending == 1:
+                m 6ekc "Oh? You want to quit?"
+                m 6eksdld "But I was having so much fun, [player]."
+                m 1gksdlc "Oh well..."
+                m 1eka "Let's play again some time."
+                $ connect4_play_again = False
+                
+        else:
+            if winner == 1:
+                m 2wub "I won!"
+                m 2tsa "Better luck next time, [player]."
+                
+            elif winner == 2:
+                m 2wub "Oh, you won."
+                m 2tfa "You're lucky this time."
+            
         if ending == 0:
-            m "Oh, it's a draw."
-            m "I mean, I saw it coming, but it's quite a rare circumstance."
-        elif ending == 1:
-            m "Oh? You want to quit?"
-            m "I was having so much fun, [player]."
-            m "Oh well..."
-            m "Let's play again some time."
-            
-    else:
-        if winner == 1:
-            m "I won!"
-            
-        elif winner == 2:
-            m "Oh, you won."
-            
-        m "No matter the outcome, I love playing with you."
+            m 2eua "Do you want to play again?{nw}"
+            $ _history_list.pop()
+            menu:
+                m "Do you want to play again?{fast}"
+                
+                "Yes.":
+                    pass
+                "No.":
+                    m "Alright, then."
+                    m 1eka "Let's play again some time."
+                    $ connect4_play_again = False
     return
             
             
