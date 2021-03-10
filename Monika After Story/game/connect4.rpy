@@ -350,36 +350,56 @@ init python:
             """
             board_form = [[(self.g_k(i, j), self.board.get(self.g_k(i, j))) for j in range(self.CEL_COL)] for i in range(self.CEL_ROW)]
             return board_form
+
+        def in_bounds(self, start_x, start_y):
+            board_i = ["00", "01", "02", "03", "04", "05", "06", "10", "11", "12", "13", "14", "15", "16", "20", "21", "22", "23", "24", "25", "26", "30", "31", "32", "33", "34", "35", "36", "40", "41", "42", "43", "44", "45", "46", "50", "51", "52", "53", "54", "55", "56"]
+            if (str(start_x) + str(start_y)) in board_i:
+                return True
+            else:
+                return False
+
+        def generate_diag(self, start_x, start_y, positive_slope):
+            # also assuming top left is (0,0)
+            if not self.in_bounds(start_x, start_y):
+                return []
+            
+            if positive_slope:
+                slope_mod = 1
+            else:
+                slope_mod = -1
+
+            x = start_x
+            y = start_y
+            xy_tups = [(start_x, start_y)]
+            while True:
+                x += 1
+                y += slope_mod
+
+                if self.in_bounds(x, y):
+                    xy_tups.append((self.g_k(x, y), self.board.get(self.g_k(x, y))))
+                else:
+                    return xy_tups
+
+            return xy_tups
                 
         def get_diagonal_ltr(self):
             """
             Returns diagonal top Left To bottom Right (ltr) line ups
             """
+            start_cels = [(2,0), (1,0), (0,0), (0,1), (0,2), (0,3)]
             board_form = list()
-            for i in range(4):
-                line_up = list()
-                line_up2 = list()
-                i2 = 0
-                for j in range(6):
-                    line_up.append((self.g_k(i+i2, j), self.board.get(self.g_k(i+i2, j))))
-                    line_up2.append((self.g_k(j, i+i2), self.board.get(self.g_k(j, i+i2))))
-                    i2 += 1
-                if i != 0:
-                    board_form.append(line_up)
-                board_form.append(line_up2)
+            for i in start_cels:
+                board_form.append(self.generate_diag(i[0], i[1], True))
             return board_form
             
         def get_diagonal_rtl(self):
             """
             Returns diagonal top Right To bottom Left (rtl) line ups
             """
+            start_cels = [(0,3), (0,4), (0,5), (0,6), (1,6), (2,6)]
             board_form = list()
-            for i in range(6):
-                line_up = list()
-                i2 = list(range(3, 9))
-                for j in range(9):
-                    line_up.append((self.g_k(i2[i]-j, j), self.board.get(self.g_k(i2[i]-j, j))))
-                board_form.append(line_up)
+            for i in start_cels:
+                board_form.append(self.generate_diag(i[0], i[1], False))
             return board_form
                 
         # GET LINE UP FUNCTIONS END
@@ -456,8 +476,9 @@ init python:
                         break
                 self.turn_switch()
                 
+                self.examine_board()
+                
                 # Debug Stuff, Don't Mind These
-                # self.examine_board()
                 # if len(self.win_tiles) > 0:
                     # say = " ".join(self.win_tiles)
                     # renpy.say(m, say, interact=False)
