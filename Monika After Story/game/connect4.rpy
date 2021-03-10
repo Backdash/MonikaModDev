@@ -5,6 +5,7 @@
 init python:
     import pygame
     import re
+    import copy
     
     class MASConnect4Displayable(renpy.Displayable):
         # pygame events
@@ -15,12 +16,16 @@ init python:
         )
         
         # variables to indicate Monika and player's pins/turn
+        EMPTY = 0
         AI = 1
         PLAYER = 2
         
         # indicate the board's rows columns
         CEL_COL = 7
         CEL_ROW = 6
+        
+        BOARD_INDEX = [[(i, j) for j in range(7)] for i in range(6)]
+        BOARD_EMPTY = [[0 for j in range(7)] for i in range(6)]
         
         # the  board's dimensions
         BOARD_BORDER_WIDTH = 15
@@ -80,7 +85,7 @@ init python:
             self.is_game_over = False
             self.quit_game = False
             self.turn = first_turn
-            self.board = dict()
+            self.board = copy.deepcopy(self.BOARD_EMPTY)
             self.full_col = set()
             self.turn_move_success = False
             self.winner = False
@@ -208,26 +213,33 @@ init python:
                 for t in self.win_tiles:
                     y, x = (int(t[0]) * MASConnect4Displayable.CEL_WIDTH, int(t[1]) * MASConnect4Displayable.CEL_HEIGHT)
                     render.blit(win_tile, (MASConnect4Displayable.CEL_BASE_X_POS + x, MASConnect4Displayable.CEL_BASE_Y_POS + y))
-                
-            if self.PLAYER in self.board.values():
-                # prepare the pins as renderer
-                player_pin = renpy.render(MASConnect4Displayable.PLAYER_IMAGE, 1280, 720, st , at)
-                
-                # draw the player pins
-                for key, pin in self.board.items():
-                    y, x = (int(key[0]) * MASConnect4Displayable.CEL_WIDTH, int(key[1]) * MASConnect4Displayable.CEL_HEIGHT)
-                    if pin == self.PLAYER:
-                        render.blit(player_pin, (MASConnect4Displayable.CEL_BASE_X_POS + x, MASConnect4Displayable.CEL_BASE_Y_POS + y))
-                        
-            if self.AI in self.board.values():
-                # prepare the AI pins as renderer
-                ai_pin = renpy.render(MASConnect4Displayable.AI_IMAGE, 1280, 720, st , at)
-                
-                # draw the AI pins
-                for key, pin in self.board.items():
-                    y, x = (int(key[0]) * MASConnect4Displayable.CEL_WIDTH, int(key[1]) * MASConnect4Displayable.CEL_HEIGHT)
-                    if pin == self.AI:
-                        render.blit(ai_pin, (MASConnect4Displayable.CEL_BASE_X_POS + x, MASConnect4Displayable.CEL_BASE_Y_POS + y))
+            
+            for i in self.board:
+                if self.PLAYER in i:
+                    # prepare the pins as renderer
+                    player_pin = renpy.render(MASConnect4Displayable.PLAYER_IMAGE, 1280, 720, st , at)
+                    break
+            
+            for i in range(len(self.board)):
+                if self.PLAYER in self.board[i]:
+                    # draw the player pins
+                    for j in range(len(self.board[i])):
+                        y, x = (i * MASConnect4Displayable.CEL_WIDTH, j * MASConnect4Displayable.CEL_HEIGHT)
+                        if self.board[i][j] == self.PLAYER:
+                            render.blit(player_pin, (MASConnect4Displayable.CEL_BASE_X_POS + x, MASConnect4Displayable.CEL_BASE_Y_POS + y))
+            
+            for i in self.board:
+                if self.AI in i:
+                    # prepare the AI pins as renderer
+                    ai_pin = renpy.render(MASConnect4Displayable.AI_IMAGE, 1280, 720, st , at)
+            
+            for i in range(len(self.board)):
+                if self.AI in self.board[i]:
+                    # draw the AI pins
+                    for j in range(len(self.board[i])):
+                        y, x = (i * MASConnect4Displayable.CEL_WIDTH, j * MASConnect4Displayable.CEL_HEIGHT)
+                        if self.board[i][j] == self.AI:
+                            render.blit(ai_pin, (MASConnect4Displayable.CEL_BASE_X_POS + x, MASConnect4Displayable.CEL_BASE_Y_POS + y))
                     
             # draw col buttons
             for b in col_buttons:
@@ -247,7 +259,7 @@ init python:
             if not self.is_game_over and self.turn == self.PLAYER:
             
                 for b in range(len(self._col_buttons)):
-                    if self.board.get(self.g_k(0, b)) == None:
+                    if self.board[0][b] == self.EMPTY:
                         self._col_buttons[b].enable()
                     else:
                         self._col_buttons[b].disable()
@@ -314,16 +326,6 @@ init python:
             ui.layer("minigames")
             ui.remove(self)
             ui.close()
-
-        def g_k(self, i, j):
-            """
-            g_k stands for "get key" (is meant to be short), used to get the board's cel
-            
-            INPUT: two integers that refers to a cel's coordinates on the board
-            
-            OUTPUT: a string, the cel's coordinate on the board
-            """
-            return str(i) + str(j)
             
         def turn_switch(self):
             """
@@ -341,23 +343,22 @@ init python:
             """
             Returns vertical line ups
             """
-            board_form = [[(self.g_k(j, i), self.board.get(self.g_k(j, i))) for j in range(self.CEL_ROW)] for i in range(self.CEL_COL)]
+            board_form = [[row[i] for row in self.BOARD_INDEX] for i in range(len(self.BOARD_INDEX[0]))]
             return board_form
-                    
+            
         def get_horizontal(self):
             """
             Returns horizontal line ups
             """
-            board_form = [[(self.g_k(i, j), self.board.get(self.g_k(i, j))) for j in range(self.CEL_COL)] for i in range(self.CEL_ROW)]
+            board_form = self.BOARD_INDEX
             return board_form
-
+            
         def in_bounds(self, start_x, start_y):
-            board_i = ["00", "01", "02", "03", "04", "05", "06", "10", "11", "12", "13", "14", "15", "16", "20", "21", "22", "23", "24", "25", "26", "30", "31", "32", "33", "34", "35", "36", "40", "41", "42", "43", "44", "45", "46", "50", "51", "52", "53", "54", "55", "56"]
-            if (str(start_x) + str(start_y)) in board_i:
-                return True
-            else:
-                return False
-
+            for i in self.BOARD_INDEX:
+                if (start_x, start_y) in i:
+                    return True
+            return False
+            
         def generate_diag(self, start_x, start_y, positive_slope):
             # also assuming top left is (0,0)
             if not self.in_bounds(start_x, start_y):
@@ -376,7 +377,7 @@ init python:
                 y += slope_mod
 
                 if self.in_bounds(x, y):
-                    xy_tups.append((self.g_k(x, y), self.board.get(self.g_k(x, y))))
+                    xy_tups.append((x, y))
                 else:
                     return xy_tups
 
@@ -413,8 +414,8 @@ init python:
                 turn = Who is making the move
             """
             for i in range(5, -1, -1):
-                if self.board.get(self.g_k(i, col), 0) == 0:
-                    self.board[self.g_k(i, col)] = turn
+                if self.board[i][col] == self.EMPTY:
+                    self.board[i][col] = turn
                     self.turn_move_success = True
                     break
         
@@ -424,15 +425,12 @@ init python:
             
             INPUT: a line up to check
             """
-            l_line_up = list()
-            for i, _i in line_up:
-                l_line_up.append(i)
-            for i in range(len(l_line_up)):
-                if i+4 > len(l_line_up):
+            for i in range(len(line_up)):
+                if i+4 > len(line_up):
                     break
-                four = [self.board.get(i2, None) for i2 in l_line_up[i:i+4]]
-                if four == [self.AI for i2 in range(4)] or four == [self.PLAYER for i2 in range(4)]:
-                    self.win_set(four[0], l_line_up[i:i+4])
+                four = [self.board[i2[0]][i2[1]] for i2 in line_up[i:i+4]]
+                if four == [self.AI for i3 in range(4)] or four == [self.PLAYER for i3 in range(4)]:
+                    self.win_set(four[0], line_up[i:i+4])
                     
         def examine_board(self):
             """
@@ -451,7 +449,7 @@ init python:
                 self.win_set()
                 
             for i in range(self.CEL_COL):
-                if self.board.get(self.g_k(0, i), None) != None:
+                if self.board[0][i] != 0:
                     self.full_col.add(i)
                 
         def player_move(self):
@@ -517,17 +515,17 @@ init python:
             for i in range(len(line_up)):
                 if i+4 > len(line_up):
                     break
-                four = [i2 for i2 in line_up[i:i+4]]
-                if [i2[1] for i2 in four].count(pin) == 3 and None in [i2[1] for i2 in four]:
-                    for key, val in four:
-                        if val is None:
-                            winning_line_up.append(key)
+                four = [self.board[i2[0]][i2[1]] for i2 in line_up[i:i+4]]
+                if four.count(pin) == 3 and self.EMPTY in four:
+                    for i3 in range(len(four)):
+                        if four[i3] is self.EMPTY:
+                            winning_line_up.append(line_up[i+i3])
                             
-            for i in winning_line_up:
-                if '-' in i or len(i) > 2:
-                    winning_line_up.remove(i)
-                elif int(i[0]) > 5 or int(i[1]) > 6:
-                    winning_line_up.remove(i)
+            # for i in winning_line_up:
+                # if '-' in i or len(i) > 2:
+                    # winning_line_up.remove(i)
+                # elif int(i[0]) > 5 or int(i[1]) > 6:
+                    # winning_line_up.remove(i)
                             
             return winning_line_up
             
@@ -579,7 +577,7 @@ init python:
                 # the AI checks where it can win first. if found, makes a move there to win
                 while ai_winning_try_moves and not self.turn_move_success:
                     try_fill = random.choice(ai_winning_try_moves)
-                    is_bottom_good = try_fill[0] == '5' or self.board.get(self.g_k(int(try_fill[0]) + 1, int(try_fill[1])), None) is not None
+                    is_bottom_good = try_fill[0] == 5 or self.board[try_fill[0] + 1][try_fill[1]] is not self.EMPTY
                     if is_bottom_good:
                         self.col_fill(try_fill[1], self.AI)
                     else:
@@ -588,7 +586,7 @@ init python:
                 # if there are no winning move, check for tiles where player can win to cancel them from winning
                 while player_winning_try_moves and not self.turn_move_success:
                     try_fill = random.choice(player_winning_try_moves)
-                    is_bottom_good = try_fill[0] == '5' or self.board.get(self.g_k(int(try_fill[0]) + 1, int(try_fill[1])), None) is not None
+                    is_bottom_good = try_fill[0] == 5 or self.board[try_fill[0] + 1][try_fill[1]] is not self.EMPTY
                     if is_bottom_good:
                         self.col_fill(try_fill[1], self.AI)
                     else:
