@@ -521,12 +521,6 @@ init python:
                         if four[i3] is self.EMPTY:
                             winning_line_up.append(line_up[i+i3])
                             
-            # for i in winning_line_up:
-                # if '-' in i or len(i) > 2:
-                    # winning_line_up.remove(i)
-                # elif int(i[0]) > 5 or int(i[1]) > 6:
-                    # winning_line_up.remove(i)
-                            
             return winning_line_up
             
         def get_ai_winning_cels(self):
@@ -562,6 +556,31 @@ init python:
             for line_up in self.get_diagonal_rtl():
                 winning_cels.extend(self.get_winning_line_up(self.PLAYER, line_up))
             return winning_cels
+        
+        def get_two_pin_line_up(self, pin, line_up):
+            two_pin_line_up = list()
+            for i in range(len(line_up)):
+                if i+4 > len(line_up):
+                    break
+                four = (line_up[i:i+4], [self.board[i2[0]][i2[1]] for i2 in line_up[i:i+4]])
+                if four[1] == [self.EMPTY, pin, pin, self.EMPTY]:
+                    for i3 in range(len(four[1])):
+                        if four[1][i3] is self.EMPTY:
+                            is_bottom_good = four[0][i3][0] == 5 or self.board[four[0][i3][0] + 1][four[0][i3][1]] is not self.EMPTY
+                            if is_bottom_good:
+                                two_pin_line_up.append(four[0][i3])
+                            
+            return two_pin_line_up
+            
+        def get_player_two_pin_cels(self):
+            two_pin_cels = list()
+            for line_up in self.get_horizontal():
+                two_pin_cels.extend(self.get_two_pin_line_up(self.PLAYER, line_up))
+            for line_up in self.get_diagonal_ltr():
+                two_pin_cels.extend(self.get_two_pin_line_up(self.PLAYER, line_up))
+            for line_up in self.get_diagonal_rtl():
+                two_pin_cels.extend(self.get_two_pin_line_up(self.PLAYER, line_up))
+            return two_pin_cels
     
         def ai_move(self):
             """
@@ -570,6 +589,7 @@ init python:
             # first we get the cels where someone can win
             ai_winning_try_moves = list(self.get_ai_winning_cels())
             player_winning_try_moves = list(self.get_player_winning_cels())
+            player_two_pin_try_moves = list(self.get_player_two_pin_cels())
             
             while not self.turn_move_success:
                 renpy.pause(1.5)
@@ -591,6 +611,15 @@ init python:
                         self.col_fill(try_fill[1], self.AI)
                     else:
                         player_winning_try_moves.remove(try_fill)
+                
+                # if there are no player winning move, block player's chance of winning next turn when there are two of their pins in adjacent tiles
+                while player_two_pin_try_moves and not self.turn_move_success:
+                    try_fill = random.choice(player_two_pin_try_moves)
+                    is_bottom_good = try_fill[0] == 5 or self.board[try_fill[0] + 1][try_fill[1]] is not self.EMPTY
+                    if is_bottom_good:
+                        self.col_fill(try_fill[1], self.AI)
+                    else:
+                        player_two_pin_try_moves.remove(try_fill)
                         
                 # makes a random move if there are no winning tiles lol
                 if not self.turn_move_success:
