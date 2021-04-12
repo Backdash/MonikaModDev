@@ -56,6 +56,7 @@ init -1 python in mas_greetings:
     TYPE_SHOPPING = "shopping"
     TYPE_WORKOUT = "workout"
     TYPE_HANGOUT = "hangout"
+    TYPE_WALK = "walk"
 
     ### NOTE: all Return Home greetings must have this
     TYPE_GO_SOMEWHERE = "go_somewhere"
@@ -4424,3 +4425,29 @@ label monikaroom_greeting_ear_recursionerror:
         m "Phew, at least everything else is fine."
 
     jump monikaroom_greeting_choice
+
+init 5 python:
+    addEvent(
+        Event(
+            persistent.greeting_database,
+            eventlabel="greeting_back_from_walk",
+            category=[store.mas_greetings.TYPE_WALK],
+            unlocked=True
+        ),
+        code="GRE"
+    )
+
+label greeting_back_from_walk:
+    if mas_isMoniNormal(higher=True):
+        m 1eua "Welcome back, [player]."
+        m 3hub "I hope you had a nice walk!"
+        m 1eua "Anyway, let's spend some more time together~"
+
+    elif mas_isMoniDis(higher=True):
+        m 2euc "There you are, [player]."
+        m 2eud "Did that walk help your mood at all?"
+
+    else:
+        m 6ckc "..."
+
+    return

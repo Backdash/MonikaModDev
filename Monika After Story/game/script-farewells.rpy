@@ -1741,3 +1741,46 @@ label bye_prompt_hangout:
     $ persistent._mas_greeting_type_timeout = datetime.timedelta(hours=8)
     $ persistent._mas_greeting_type = store.mas_greetings.TYPE_HANGOUT
     return "quit"
+
+init 5 python:
+    addEvent(
+        Event(
+            persistent.farewell_database,
+            eventlabel="bye_prompt_walk",
+            prompt="I'm going for a walk.",
+            unlocked=True,
+            pool=True
+        ),
+        code="BYE"
+    )
+
+label bye_prompt_walk:
+    if mas_isMoniNormal(higher=True):
+        if mas_getEVL_shown_count("bye_prompt_walk") == 0:
+            m 1wublb "Ooh, a walk? Do you think I could...{w=0.3}come with you?{nw}"
+            $ _history_list.pop()
+            menu:
+                m "Do you think I could...come with you?{fast}"
+
+                "Sure.":
+                    jump mas_dockstat_iostart
+
+                "Maybe some other time.":
+                    m 1eka "Okay. {w=0.3}Have a nice walk~"
+
+        else:
+            m 1eub "That's great, [player]!"
+            if renpy.random.randint(1,5) == 1:
+                m 1hua "A walk can do wonders for body and soul."
+            m 3hub "Have a nice walk~"
+
+    elif mas_isMoniDis(higher=True):
+        m 2eud "Okay, [player]..."
+        m 2euc "Bye."
+
+    else:
+        m 6ckc "..."
+
+    $ persistent._mas_greeting_type_timeout = datetime.timedelta(hours=4)
+    $ persistent._mas_greeting_type = store.mas_greetings.TYPE_WALK
+    return "quit"
