@@ -1043,6 +1043,25 @@ label mas_unlock_piano:
     $ mas_unlockGame("piano")
     return
 
+init 5 python:
+    addEvent(
+        Event(
+            persistent.event_database,
+            eventlabel="mas_unlock_shiritori",
+            conditional=(
+                "store.mas_xp.level() >= 4 "
+                "or store.mas_games._total_games_played() > 49"
+            ),
+            action=EV_ACT_QUEUE
+        )
+    )
+
+label mas_unlock_shiritori:
+    m "I though of a new game we could play!"
+    m "It's shiritori, a japanese word game."
+    $ mas_unlockGame("shiritori")
+    return
+
 # NOTE: this has been partially disabled
 init 5 python:
     addEvent(

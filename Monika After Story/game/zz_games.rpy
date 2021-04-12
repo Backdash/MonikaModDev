@@ -172,6 +172,21 @@ label mas_piano:
     call mas_piano_start
     return
 
+init 5 python:
+    addEvent(
+        Event(
+            persistent._mas_game_database,
+            eventlabel="mas_shiritori",
+            prompt="Shiritori"
+        ),
+        code="GME",
+        restartBlacklist=True
+    )
+
+label mas_shiritori:
+    call game_shiritori
+    return
+
 label mas_pick_a_game:
     # we can assume that getting here means we didnt cut off monika
     $ mas_RaiseShield_dlg()
