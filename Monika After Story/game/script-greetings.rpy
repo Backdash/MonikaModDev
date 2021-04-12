@@ -126,7 +126,7 @@ init -1 python in mas_greetings:
         #   2. priority (lower or same is True)
         #   3. type/non-0type
         #   4. unlocked
-        #   5. aff_ramnge
+        #   5. aff_range
         #   6. all rules
         #   7. conditional
         #       NOTE: this is never cleared. Please limit use of this
@@ -1626,6 +1626,204 @@ label monikaroom_greeting_ear_renpy_docs:
         call monikaroom_greeting_ear_prog_dis
 
     jump monikaroom_greeting_choice
+
+init 5 python:
+    if (renpy.seen_label('monikaroom_greeting_ear_rmrfe')
+        and not renpy.seen_label('monikaroom_greeting_ear_ackermann')
+        and persistent._mas_player_bday
+        and mas_isMoniNormal()):
+        gmr.eardoor.append("monikaroom_greeting_ear_ackermann")
+
+label monikaroom_greeting_ear_ackermann:
+    # Monika inadvertedly tries to run ackermann's function with anniversary date, player birthday, and her own birthday
+    python:
+        # comparing player bday and anniversary dates
+        # this is to make sure the lower m value is tried first
+        if mas_getFirstSesh().strftime('%j') >= persistent._mas_player_bday.strftime('%j'):
+            a_tuple1 = {persistent._mas_player_bday.timetuple()[1],persistent._mas_player_bday.timetuple()[2]}
+            a_tuple2 = {mas_getFirstSesh().timetuple()[1], mas_getFirstSesh().timetuple()[2]}
+        else:
+            a_tuple1 = {mas_getFirstSesh().timetuple()[1], mas_getFirstSesh().timetuple()[2]}
+            a_tuple2 = {persistent._mas_player_bday.timetuple()[1],persistent._mas_player_bday.timetuple()[2]}
+
+        # commands for Monika to type
+        a_cmd1 = "a({},{})".format(a_tuple1[0],a_tuple1[1])
+        a_cmd2 = "a({},{})".format(a_tuple2[0],a_tuple2[1])
+
+        # calculable stores for how many of our tuples is a(m,n) calculable, duh
+        # the complexity of a(m,n) for m = 1,2,3 is constant, quadratic, and exponential respectively
+        # 1 and 2 are trivial for n up to 31, but 3 requires billions of function calls by n = 13
+        # n = 6 is the highest you can go without inflating your recursion limit
+        if (a_tuple1[0] <= 2) or (a_tuple1[0] == 3 and a_tuple1[1] <= 6):
+            if ((a_tuple2[0] <= 2) or (a_tuple2[0] == 3 and a_tuple2[1] <= 6)) and a_tuple1 != a_tuple2:
+                calculable = 2
+            else:
+                calculable = 1
+        else:
+            calculable = 0
+
+        def a(m,n):
+            """
+            Trivialized Ackermann's function
+            IN: m,n - integers
+                allowed values (1,any),(2,any),(3,1-6)
+            OUT: a(m,n) if (m,n) is allowed
+                0 otherwise
+            """
+            if m == 1:
+                return (n+2)
+            elif m == 2:
+                return (2*n+3)
+            elif m == 3 and n <= 6:
+                return (8*(2**n)-3)
+            else:
+                return 0
+
+    m "...Alright, what's next?"
+    m "{i}a(m,n), in: 2 ints, returns int{/i}..."
+    m "Wait, that's it?"
+    m "Ugh, whoever wrote this really needs to work on their documentation skills."
+    m "Well, based on that, it's probably some kind of a math function."
+    m "Hmm...{w=1} Maybe I can try to figure out what it's supposed to be."
+    m "Sounds like a fun little exercise~"
+    m "Let's see..."
+    m "[a_cmd1] returns {w=0.2}{nw}"
+
+    if (calculable):
+        $ a_out1 = a(a_tuple1[0],a_tuple1[1])
+        extend "[a_out1], huh."
+        m "Let's try another one, maybe I'll see a pattern."
+
+        if (a_tuple1 != a_tuple2):
+            m "How about [a_cmd2]."
+        else:
+            m "How about a(9,22)."
+        m "That gives {w=1}{nw}" # long wait, ackermann takes a while
+
+        if (calculable == 2):
+            $ a_out2 = a(a_tuple2[0],a_tuple2[1])
+            extend "[a_out2]..."
+            if ((a_tuple1[0] == a_tuple2[0]) and (a_tuple1[0] != 3)):
+                if (a_tuple1[0] == 1):
+                    m "So it sums the two inputs and adds 1? Maybe?"
+                elif (a_tuple1[1] == 2):
+                    m "So it multiplies the two inputs and adds 3? Maybe?"
+                m "I guess that could be useful for {i}something{/i}."
+                m "Let's try one more to be sure."
+            else:
+                m "Hmm, still nothing obvious."
+                m "Maybe I'll see it if I try one more."
+            m "Hmm...{w=0.5}a(9,22)"
+
+    #TODO stop bgm if on
+    pause 5.0
+
+    # enable part 2, remove this from eardoor pool
+    $ mas_unlockEVL("monikaroom_greeting_ear_ackermann2", "GRE")
+    $ gmr.eardoor.remove("monikaroom_greeting_ear_ackermann")
+    return 'quit'
+
+init 5 python:
+
+    # high priority to force this after part 1
+    # also time limit, it makes no sense to get this if you come back the next day
+    ev_rules = {}
+    if mas_getAbsenceLength() <= datetime.timedelta(hours=1):
+        ev_rules.update(MASPriorityRule.create_rule(10))
+    else:
+        mas_lockEVL("monikaroom_greeting_ear_ackermann2", "GRE")
+
+    addEvent(
+        Event(
+            persistent.greeting_database,
+            eventlabel="monikaroom_greeting_ear_ackermann2",
+            rules=ev_rules
+        ),
+        code="GRE"
+    )
+
+label monikaroom_greeting_ear_ackermann2:
+    # relocking
+    $ mas_lockEVL("monikaroom_greeting_ear_ackermann2", "GRE")
+
+    # setup same as i_greeting_monikaroom
+    $ mas_progressFilter()
+    if persistent._mas_auto_mode_enabled:
+        $ mas_darkMode(mas_current_background.isFltDay())
+    else:
+        $ mas_darkMode(not persistent._mas_dark_mode_enabled)
+    $ mas_enable_quit()
+    $ mas_RaiseShield_core()
+    scene black
+    $ has_listened = False
+    # fall throughout
+
+label monikaroom_greeting_ear_ackermann3:
+    # pull up door menu with paths specific to this greeting
+    menu:
+        "Open the door.":
+            $ is_sitting = False # monika standing up for this
+
+            # reset outfit since standing is stock
+            $ monika_chr.reset_outfit(False)
+            $ monika_chr.wear_acs(mas_acs_ribbon_def)
+            $ mas_startupWeather()
+
+            call spaceroom(start_bg="bedroom",hide_monika=True, dissolve_all=True, show_emptydesk=False)
+
+            # show this under bedroom so the masks window skit still works
+            $ behind_bg = MAS_BACKGROUND_Z - 1
+            show bedroom as sp_mas_backbed zorder behind_bg
+            $ mas_disable_quit()
+
+            m "Ah! [player]! Why are you-"
+            m "You saw what just happened?"
+
+            if mas_isMoniLove():
+                # smugnika
+                m "Oh, I see how it is."
+                m "You thought something terrible happened to your lovely girlfriend, so you rushed here to make sure I'm okay."
+                m "Well, I suppose I can forgive you for barging in here like that if that's your reason."
+                m "Ahaha, I'm just joking, [player]~"
+            else:
+                m "I was just...{w=0.5}{nw}"
+                extend "doing something really dumb, now that I think about it."
+                m "Ahaha~"
+
+            m "But don't worry. As you can see, I'm alright."
+            m "It just surprised me a bit."
+            #TODO transition to desk here
+
+        "Knock.":
+            $ mas_disable_quit()
+            m "Who is it?~"
+            menu:
+                "It's me.":
+                    # same as normal
+                    m "[player]! I'm so happy that you're back!"
+                    if persistent.seen_monika_in_room:
+                        m "And thank you for knocking first~"
+                    m "Hold on, let me tidy up..."
+
+                "RecursionError: maximum recursion depth exceeded in comparison":
+                    m "Ahaha~"
+                    m "You saw that, huh?"
+                    m "Don't worry, I'm okay. It just surprised me a bit."
+                    m "Anyway, just let me tidy up and I'll be with you in a moment..."
+
+            $ mas_startupWeather()
+            call spaceroom(hide_monika=True, dissolve_all=True, scene_change=True, show_emptydesk=False)
+            jump monikaroom_greeting_post
+
+        "Listen." if not has_listened:
+            $ has_listened = True
+            m "Huh.{w=0.2} Alright then."
+            m "Let's {i}not{/i} try that again."
+            m "I should really know better than to run random code snippets by now."
+            m "Curiosity killed the cat and all that."
+            m "Ow..."
+            jump monikaroom_greeting_ear_ackermann3
+
 
 ## ear door processing
 init 10 python:
