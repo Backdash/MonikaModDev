@@ -1402,9 +1402,9 @@ screen preferences():
                 vbox:
                     style_prefix "check"
                     label _(" ")
-                    textbutton _("Sensitive Mode"):
-                        action ToggleField(persistent, "_mas_sensitive_mode", True, False)
-                        hovered tooltip.Action(layout.MAS_TT_SENS_MODE)
+#                    textbutton _("Sensitive Mode"):
+#                        action ToggleField(persistent, "_mas_sensitive_mode", True, False)
+#                        hovered tooltip.Action(layout.MAS_TT_SENS_MODE)
 
                     if store.mas_windowreacts.can_do_windowreacts:
                         textbutton _("Window Reacts"):

@@ -431,8 +431,7 @@ python early:
     #       NOTE: If this is given, the year part of start_date and end_date
     #           will be IGNORED
     #       (Default: None)
-    #   sensitive - True means this is a sensitve topic, False means it is not
-    #       (Default: False)
+    #   sensitive - IGNORED
     #   aff_range - tuple of the following format:
     #       [0]: - low limit of affection where this event is available
     #           (inclusive)
@@ -470,7 +469,7 @@ python early:
             #"diary_entry":13, # NOTE: this will not be removed until later
             "last_seen":14,
             "years":15,
-            "sensitive":16,
+            #"sensitive":16, # NOTE: this will not be removed until later
             "aff_range":17,
             "show_in_idle":18,
         }
@@ -482,7 +481,8 @@ python early:
             "locks",
             "rules",
             "diary_entry",
-            "flags"
+            "flags",
+            "sensitive",
         )
 
         # filterables
@@ -495,7 +495,7 @@ python early:
             "seen", # 5
             "excl_cat", # 6
             "moni_wants", # 7
-            "sensitive", # 8
+            "sensitive", # 8 # NOTE: do not comment out for compatibility
             "aff", # 9
             "flag_req", # 10
             "flag_ban", # 11
@@ -631,6 +631,10 @@ python early:
             self.rules = rules
             self.flags = flags
 
+            # NOTE: set deprecated properties here
+            self.diary_entry = ""
+            self.sensitive = False
+
             # this is the data tuple. we assemble it here because we need
             # it in two different flows
             data_row = (
@@ -650,7 +654,7 @@ python early:
                 "", # diary_entry
                 last_seen,
                 years,
-                sensitive,
+                False, # sensitive
                 aff_range,
                 show_in_idle
             )
@@ -700,7 +704,7 @@ python early:
 #                    self.diary_entry = diary_entry
 #                    self.rules = rules
                     self.years = years
-                    self.sensitive = sensitive
+                    #self.sensitive = sensitive
                     self.aff_range = aff_range
                     self.show_in_idle = show_in_idle
 
@@ -1405,8 +1409,8 @@ python early:
                     return False
 
             # sensitivyt
-            if sensitive is not None and event.sensitive != sensitive:
-                return False
+#            if sensitive is not None and event.sensitive != sensitive:
+#                return False
 
             # check if event contains the monika wants this rule
             if moni_wants is not None and event.monikaWantsThisFirst() != moni_wants:
@@ -1452,13 +1456,7 @@ python early:
                 moni_wants - boolean value to match if the event has the monika
                     wants this first.
                     (Default: None )
-                sensitive - boolean value to match if the event is sensitive
-                    or not
-                    NOTE: if None, we use inverse of _mas_sensitive_mode, only
-                        if sensitive mode is True.
-                        AKA: we only filter sensitve topics if sensitve mode is
-                        enabled.
-                    (Default: None)
+                sensitive - IGNORED
                 aff - affection level to match aff_range
                     (Default: None)
                 flag_req - flags that the event must match
@@ -1486,7 +1484,7 @@ python early:
             # setup keys
             cat_key = Event.FLT[0]
             act_key = Event.FLT[4]
-            sns_key = Event.FLT[8]
+            #sns_key = Event.FLT[8]
 
             # validate filter rules
             category = flt_args.get(cat_key)
@@ -1505,14 +1503,14 @@ python early:
             if action and len(action) == 0:
                 flt_args[act_key] = None
 
-            sensitive = flt_args.get(sns_key)
-            if sensitive is None:
-                try:
-                    # i have no idea if this is reachable from here
-                    if persistent._mas_sensitive_mode:
-                        flt_args[sns_key] = False
-                except:
-                    pass
+#            sensitive = flt_args.get(sns_key)
+#            if sensitive is None:
+#                try:
+#                    # i have no idea if this is reachable from here
+#                    if persistent._mas_sensitive_mode:
+#                        flt_args[sns_key] = False
+#                except:
+#                    pass
 
             filt_ev_dict = dict()
 
@@ -8192,8 +8190,9 @@ define skip_setting_weather = False# in case of crashes/reloads, predefine it he
 
 define mas_monika_twitter_handle = "lilmonix3"
 
-# sensitive mode enabler
-default persistent._mas_sensitive_mode = False
+# sensitive mode is always set to False now
+init python:
+    persistent._mas_sensitive_mode = False
 
 #Amount of times player has reloaded in ddlc
 default persistent._mas_ddlc_reload_count = 0
