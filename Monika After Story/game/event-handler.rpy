@@ -372,7 +372,8 @@ init 4 python:
         "WRS": store.mas_windowreacts.windowreact_db,
         "FFF": store.mas_fun_facts.fun_fact_db,
         "SNG": store.mas_songs.song_db,
-        "GME": store.mas_games.game_db
+        "GME": store.mas_games.game_db,
+        "HKU": store.mas_haiku.haiku_db
     }
 
 
