@@ -529,7 +529,9 @@ init -19 python:
 
         PROPERTIES:
             deco - MASImageTagDecoration object associated with this definition
-            bg_map - mapping of background ids to adv deco frame
+            bg_map - mapping of background ids to tuple:
+                [0] - tag to use, or None to use the known tag
+                [1] - adv deco frame
         """
 
         def __init__(self, deco):
@@ -539,6 +541,7 @@ init -19 python:
             IN:
                 deco - MASImageTagDefintion object to use
             """
+            self.deco = deco
             self.bg_map = {}
 
             if deco.name in store.mas_deco.deco_def_db:
@@ -563,7 +566,72 @@ init -19 python:
 
             return deco_def.bg_map.get(bg_id, None)
 
-        def register_bg(self, bg_id, adv_deco_frame):
+        def get_img(bg_id):
+            """
+            Gets the tag and MASAdvancedDecoFrame to use for a bg for this
+            definition.
+
+            IN:
+                bg_id - background ID to get img info for
+                tag - tag to get img info for
+
+            RETURNS: tuple (or None if not found)
+                [0] - tag to use
+                [1] - MASAdvancedDecoFrame to use
+            """
+            img_info = self.bg_map.get(bg_id, None)
+            if img_info is None:
+                return None
+
+            tag, adf = img_info
+            if tag is None:
+                tag = self.deco.name
+
+            return tag, adf
+
+        @staticmethod
+        def get_img_for_bg(bg_id, tag):
+            """
+            Gets the tag and MASAdvancedDecoFrame to use for a bg for a
+            given main tag.
+
+            IN:
+                bg_id - backgroud ID to get img info for
+                tag - tag to get img info for
+
+            RETURNS: tuple (or None if not found)
+                [0] - tag to use 
+                [1] - MASAdvancedDecoFrame to use
+            """
+            deco_def = store.mas_deco.deco_def_db.get(tag, None)
+            if deco_def is None:
+                return None
+
+            return deco_def.get_img(bg_id)
+
+        @staticmethod
+        def get_img_setting(bg_id, tag):
+            """
+            Gets the tag and MASAdvancedDecoFrame setting to use for a bg for
+            a given main tag.
+            NOTE: do not use this for render. Use this for getting raw 
+            settings.
+
+            IN:
+                bg_id - background ID to get img info for
+                tag - tag to get img info for
+
+            RETURNS: tuple (or None if not found)
+                [0] - tag used in the setting
+                [1] - MASAdvancedDecoFrame used in the setting
+            """
+            deco_def = store.mas_deco.deco_def_db.get(tag, None)
+            if deco_def is None:
+                return None
+
+            return deco_def.bg_map.get(bg_id, None)
+
+        def register_bg(self, bg_id, adv_deco_frame, replace_tag=None):
             """
             Registers the given MASAdvanecdDecoFrame to this definition for
             a bg id.
@@ -571,13 +639,16 @@ init -19 python:
             IN:
                 bg_id - MASBackgroundID
                 adv_deco_frame - MASAdvancedDecoFrame to register
+                replace_tag - tag to use instead of the known tag
+                    if None, then we use the known tag instead.
+                    (Default: None)
             """
-            self.bg_map[bg_id] = adv_deco_frame
+            self.bg_map[bg_id] = (replace_tag, adv_deco_frame)
 
         def register_bg_same(self, bg_id_src, bg_id_dest):
             """
             Register that a bg for this tag should use the same
-            MASAdvancedDecoFrame as another bg.
+            MASAdvancedDecoFrame + tag info as another bg.
 
             IN:
                 bg_id_src - bg ID of the background to copy deco frame from
@@ -588,7 +659,7 @@ init -19 python:
                 self.bg_map[bg_id_dest] = adf
 
         @staticmethod
-        def register_img(tag, bg_id, adv_deco_frame):
+        def register_img(tag, bg_id, adv_deco_frame, replace_tag=None):
             """
             Registers MASAdvancedDecoFrame for a BG and tag.
             Will create a new entry if the tag does not have a definition yet.
@@ -599,6 +670,9 @@ init -19 python:
                 tag - tag to register decoframe for bg
                 bg_id - id of teh bg to register decoframe for
                 adv_dec_frame - the decoframe to register
+                replace_tag - tag to use instead of the known tag for this bg
+                    if None, then we use the known tag instead.
+                    (Default: None)
             """
             deco_def = store.mas_deco.deco_def_db.get(tag, None)
             if deco_def is None:
@@ -606,13 +680,13 @@ init -19 python:
                     MASImageTagDecoration(tag)
                 )
 
-            deco_def.register_bg(bg_id, adv_deco_frame)
+            deco_def.register_bg(bg_id, adv_deco_frame, replace_tag=replace_tag)
 
         @staticmethod
         def register_img_same(tag, bg_id_src, bg_id_dest):
             """
             Registers that a bg for a tag should use the same
-            MASAdvancedDecoFRame as another bg for that tag.
+            MASAdvancedDecoFRame + tag info as another bg for that tag.
             Will create a new entry if the tag does not have a definition yet.
 
             IN:
@@ -620,9 +694,18 @@ init -19 python:
                 bg_id_src - bg ID of the background to copy deco frame from
                 bg_id_dest - bg ID of the background to use deco frame for
             """
-            adf = MASImageTagDecoDefinition.get_adf(bg_id_src, tag)
-            if adf is not None:
-                MASImageTagDecoDefinition.register_img(tag, bg_id_dest, adf)
+            img_info = MASImageTagDecoDefinition.get_img_setting(
+                bg_id_src,
+                tag
+            )
+            if img_info is not None:
+                replace_tag, adf = img_info
+                MASImageTagDecoDefinition.register_img(
+                    tag,
+                    bg_id_dest,
+                    adf,
+                    replace_tag=replace_tag
+                )
 
 
     class MASDecoManager(object):
@@ -719,6 +802,7 @@ init -19 python:
                 adv_deco_frame - MASAdvancedDecoFRame to associate with deco
                     object.
             """
+            # TODO - update for deco tag replace
             self._adv_decos[deco_obj.name] = deco_obj
             self._deco_frame_map[deco_obj.name] = adv_deco_frame
 
