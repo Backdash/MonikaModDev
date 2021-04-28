@@ -59,7 +59,7 @@ init 5 python:
 
 label monika_gtod_tip000:
     m 3eub "Of course I'll teach you about grammar, [player]!"
-    m 3hua "It makes me really happy you want to better your writing skills."
+    m 3hua "It makes me really happy you want to improve your writing skills."
     m 1eub "I've actually been reviewing some books on writing, and I think there are some interesting things we can talk about!"
     m 1rksdla "I'll admit...{w=0.5}it kind of sounds strange to discuss something as specific as grammar."
     m 1rksdlc "I know it's not the most exciting thing that comes up in people's minds."

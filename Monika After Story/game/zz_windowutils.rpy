@@ -178,7 +178,7 @@ init python in mas_windowutils:
                 winname = win.get_wm_name()
 
                 #NOTE: This must be config.name as we call this during init time, where config.name is None
-                if transient_for is None and winname and renpy.config.window_title in winname:
+                if transient_for is None and winname and renpy.config.window_title == winname:
                     return win
 
         except BadWindow:
@@ -201,7 +201,7 @@ init python in mas_windowutils:
             """
             Internal function to identify the MAS window. Raises an exception when found to allow the main func to return
             """
-            if renpy.config.window_title in win32gui.GetWindowText(hwnd):
+            if renpy.config.window_title == win32gui.GetWindowText(hwnd):
                 raise MASWindowFoundException(hwnd)
 
         try:

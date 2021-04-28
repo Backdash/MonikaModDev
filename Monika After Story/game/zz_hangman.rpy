@@ -697,8 +697,8 @@ label mas_hangman_game_loop:
         m 1hua "Wow, you guessed [the_word] correctly!"
         m "Good job, [player]!"
 
-        if not persistent.ever_won['hangman']:
-            $ persistent.ever_won['hangman']=True
+        if not persistent._mas_ever_won['hangman']:
+            $ persistent._mas_ever_won['hangman']=True
         #TODO: grant a really tiny amount of affection?
 
     #Give up just ends

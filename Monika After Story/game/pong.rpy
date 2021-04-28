@@ -545,8 +545,8 @@ label demo_minigame_pong:
         $ inst_dialogue = store.mas_pong.DLG_LOSER
 
         #Give player XP if this is their first win
-        if not persistent.ever_won['pong']:
-            $persistent.ever_won['pong'] = True
+        if not persistent._mas_ever_won['pong']:
+            $persistent._mas_ever_won['pong'] = True
 
     if new_difficulty < 0:
         $ persistent._mas_pong_difficulty = 0

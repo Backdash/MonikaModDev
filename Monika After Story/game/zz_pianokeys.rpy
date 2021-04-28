@@ -189,8 +189,8 @@ label mas_piano_setupstart:
 
     # granting XP:
     # you are good player
-    if full_combo and not persistent.ever_won['piano']:
-        $persistent.ever_won['piano']=True
+    if full_combo and not persistent._mas_ever_won['piano']:
+        $persistent._mas_ever_won['piano']=True
 
     # call the post label
     call expression post_piano from _zzpk_ppel

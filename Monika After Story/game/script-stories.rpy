@@ -290,8 +290,6 @@ label mas_scary_story_setup:
     $ mas_temp_zoom_level = store.mas_sprites.zoom_level
     call monika_zoom_transition_reset(1.0)
 
-    $ mas_changeBackground(mas_background_def)
-
     #If we're in O31 mode, it's already raining and the room is also already set up
     if not persistent._mas_o31_in_o31_mode:
         $ mas_changeWeather(mas_weather_rain)

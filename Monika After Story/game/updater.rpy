@@ -841,7 +841,7 @@ label mas_updater_rpy_issue:
             #Run the updater
             jump update_now
 
-        "No thanks.":
+        "No, thanks.":
             m 3eka "Alright [player]. If you delete them and then try to update again, I'll run the updater for you."
 
     return

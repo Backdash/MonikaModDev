@@ -377,7 +377,14 @@ label v0_3_1(version=version): # 0.3.1
 # 0.12.1.2
 label v0_12_1_2(version="v0_12_1_2"):
     python:
-        pass
+        if persistent.ever_won:
+            persistent._mas_ever_won.update(persistent.ever_won)
+
+        mas_setEVLPropValues(
+            "mas_compliment_chess",
+            conditional="persistent._mas_chess_stats.get('losses', 0)>5"
+        )
+
     return
 
 # 0.12.1
@@ -2166,7 +2173,8 @@ label v0_8_13(version="v0_8_13"):
                     datetime.time(hour=20)
                 )
 
-                d25_sp_tim.end_date = datetime.datetime.combine(
+                # NOTE: Here was a crash because of undefined var, fixed in 0.12.1 typos
+                d25_sp_tm.end_date = datetime.datetime.combine(
                     mas_d25p,
                     datetime.time(hour=1)
                 )
