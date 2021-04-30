@@ -16483,6 +16483,120 @@ init 5 python:
     addEvent(
         Event(
             persistent.event_database,
+            eventlabel="monika_impermanence",
+            category=["philosophy"],
+            random=True,
+            prompt="Impermanence",
+            sensitive=True
+        )
+    )
+
+label monika_impermanence:
+    $ wants_full_topic = None
+    if not mas_getEVL_shown_count("monika_impermanence"):
+        # use TMA for this check when it's done
+        # first time intro from random
+        m 2ruc "..."
+        m 2euc "You know...{w=0.5}there's something that's been on my mind lately."
+
+    else:
+        # repeat from menu intro
+        # safe to assume the player wants to hear what Moni has to say, skip the main choice from here
+        m 2euc "You know, I find myself thinking about some dark stuff occasionally."
+        $ wants_full_topic = True
+
+    m 1eud "Concepts like impermanence{w=0.3},{nw}"
+    extend 1ekc " nihilism{w=0.3},{nw}"
+    extend 1rkd " depression."
+    extend 1eub " I don't mean to worry you, I'm not suffering from depression myself, or anything like that."
+    m 1eua "It's just that thinking about these subjects is...{w=0.5}{nw}"
+    extend 3eub "{i}fascinating{/i},{w=0.5}{nw}"
+    extend 1euc " in a morbid way."
+
+    if (wants_full_topic is None):
+        m 3eub "So I wanted to share my thoughts with you...{w=0.3}{nw}"
+        extend 1eka "if that's alright with you, of course."
+        $ _history_list.pop()
+        menu:
+            m "So I wanted to share my thoughts with you...if that's alright with you, of course.{fast}"
+
+            "Please do.":
+                $ wants_full_topic = True
+
+            "I'd rather you not.":
+                $ wants_full_topic = False
+
+    if (wants_full_topic):
+        m 2esb "So, you've probably heard the term {i}entropy{/i} thrown around in this context, right?"
+        m 3esa "Usually it goes something like{w=0.3}{nw}"
+        extend 1esd " 'Entropy must always increase,{w=0.3} the universe tends to disorder,{w=0.3} everything turns to chaos.'"
+        m 1ruc "...That kind of stuff."
+        m 3eub "Actually, there's a poem I read that delivers this message quite well."
+        m 1eua "Would you like to hear it?"
+
+        $ _history_list.pop()
+        menu:
+            m "Would you like to hear it?{fast}"
+
+            "Yes please.":
+                m 1hub "Alright then."
+                m 1esb "{i}I met a traveller from an antique land{/i}"
+                m 1esd "{i}Who said: Two vast and trunkless legs of stone{/i}"
+                m 3esd "{i}Stand in the desert. Near them, on the sand,{/i}"
+                m 3esc "{i}Half sunk, a shattered visage lies, whose frown,{/i}"
+                m 1esc "{i}And wrinkled lip, and sneer of cold command,{/i}"
+                m 1esd "{i}Tell that its sculptor well those passions read{/i}"
+                m 1dsd "{i}Which yet survive, stamped on these lifeless things,{/i}"
+                m 1esc "{i}The hand that mocked them and the heart that fed:{/i}"
+                m 3esc "{i}And on the pedestal these words appear:{/i}"
+                m 3esd "{i}'My name is Ozymandias, king of kings:{/i}"
+                m 3esc "{i}Look on my works, ye Mighty, and despair!'{/i}"
+                m 1dsc "{i}Nothing beside remains. Round the decay{/i}"
+                m 1dsd "{i}Of that colossal wreck, boundless and bare{/i}"
+                m 1esd "{i}The lone and level sands stretch far away.{/i}"
+
+            "Not right now.":
+                m 1eka "Okay, maybe some other time then."
+
+        m 3esb "Basically, what it boils down to is that no matter how great the mark you leave on history is, it will fade away {i}eventually{/i}."
+        m 1euc "A lot of people see this as a good enough reason to just...{w=0.2}{nw}"
+        extend 1eud "give up.{w=0.3}{nw}"
+        extend 1ekc " To fall into a pit of despair and stay there, sometimes for as long as they live."
+        m 1esd "After all, nothing you do matters in the grand scheme of things."
+        m 3eud "Nothing you {i}can{/i} do matters...{w=0.3}{nw}"
+        extend 1ekc "so why bother doing anything at all?"
+        m 1rkd "It's not hard to see why some might consider this as the natural conclusion of such a realization."
+        m 1rkc "It can be...{w=0.3}enticing{w=0.3}, even comforting in it's own twisted way."
+
+        m 2euc "But let me ask you a question..."
+        extend  3euc "even if you {i}could{/i} leave some sort of a permanent mark on the cosmos, would that really change so much?"
+        m 1eud "One day you'd still be gone."
+        m 1esd "...And some time after that, there'd still come a day when someone thought about you, the real you, for the last time."
+        m 1eka "But be it eighty years from now, or a million, poetry will still be beautiful, cats will still be adorable, and the universe will still be as indifferent as it ever was."
+        m 1eub "Why should the fact that nothing really matters be the one thing that {i}does{/i} matter?"
+        m "...When you look at it that way, the act of finding hope becomes as arbitrary as losing it."
+        m 1eua "..."
+        m 1hka "I guess, what I'm trying to say here is..."
+        m 1ekb "Yes, there will be an end.{w=0.3} To you, me, and eventually everything else."
+        if mas_isMoniAff(higher=True):
+            m 3esb "But while we're here, it would be rather silly to waste what time we have feeling miserable."
+            m 1esa "Don't you think?"
+        else:
+            m 1esa "But that's the way it's always been, and there's really no point in feeling down about it. Not now, nor ever."
+
+    else:
+        m 1rkc "...{w=0.5}{nw}"
+        extend 1ekb "Fair enough."
+        m 3eka "I know those aren't exactly the most pleasant topics to discuss."
+        m 1esa "I won't bring this up again, but let me know if you change your mind."
+        m 1esb "I think it's with difficult topics like these that a point of view different from one's own can be the most useful."
+
+    return "derandom"
+
+init 5 python:
+    addEvent(
+        Event(
+            persistent.event_database,
             eventlabel="monika_kamige",
             category=['games'],
             prompt="What is kamige?",
