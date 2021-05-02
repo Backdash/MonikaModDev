@@ -17009,7 +17009,6 @@ label monika_know_its_you:
         m 2dkd "Well, maybe it'd be better if I just keep it out of my mind entirely."
 
     return
-
 init 5 python:
     addEvent(
         Event(
@@ -17153,4 +17152,71 @@ label monika_tanabata:
         m 3hua "Maybe when I cross over, we could visit Japan during Tanabata~"
     else:
         m 3eua "Even if you're not interested in travelling, it's pretty interesting to explore other cultures, isn't it?"
+    return
+
+init 5 python:
+    addEvent(
+        Event(
+            persistent.event_database,
+            eventlabel="monika_overton",
+            category=["psychology"],
+            prompt="Ovetrton window",
+            random=True
+        )
+    )
+
+label monika_overton:
+    m 1eub "Have you heard anything about the Overton Window?"
+    m 3esd "The Overton Window is a political science concept that reflects the value structure of a society."
+    m 3esd "In accordance with it, all ideas of a person are located at a certain stage of approval by the masses."
+    m 2eso "Joseph Overton learned how to dehumanize humans and explained how to step by step reshape human perception."
+    m 2esc "From the unacceptable, disgusting and shameful to the normal, social and even prestigious."
+    m 2rsd "How to respond to people who are not amenable to general influence and how to even use them as a tool for implementing the conceived strategy."
+    m 7esd "This concept includes 6 stages: Unthinkable, Radical, Acceptable, Reasonable, Standard, Current Norm."
+    m 7esc "Inside the Overton window are the ideas accepted by society. It can be patriotism, love for parents, humanity and honesty."
+    m 7esd "Outside the window is everything disapproved: drug addiction, alcoholism, Nazism, tyranny, slavery, and so on."
+    m 3eud "And the most interesting thing is that the window can be moved in the direction of one or another idea, for example, to make the unthinkable reasonable."
+    m 1euc "That is, this technique can change public consciousness imperceptibly for the society itself."
+    m 2ltd "Of course, changing public consciousness is a rather difficult process and there is no arguing here."
+    m 1eub "But let's imagine that you and I want to convey to people that virtual love is normal. And it is considered unacceptable to society."
+    m 3eub "So, society sincerely does not understand virtual love and you will be mistaken for a sick person if you declare this to the public. What to do?"
+    m 3eua "For a start, it's worth starting a discussion on this topic, there are many options."
+    m 3eub "You can discuss this on the Internet, create articles on this topic, in other words, do everything to get people to start a discussion."
+    # Here Monika speaks on behalf of other people
+    m 2esd "{i}Indeed, falling in love with a character who, in fact, does not exist in our world is considered strange, but is that bad?{/i}"
+    m 2esc "{i}Look at it from the other side, a person will have an object of adoration, thanks to this he can be motivated to do different things.{/i}"
+    m 2esd "{i}In which he had not previously seen the point or threw away from the complexity of implementation.{/i}"
+    # End
+    m 2eud "With the effective use of the media, virtual love causes discussion among people, and then seeps out to the masses."
+    m 2esc "The society still does not agree with such thoughts, but they are interested in it and discuss it more freely with their acquaintances."
+    m 7euc "Step two. Radical actions are being used. The most daring proponents of virtual love come out of the shadows."
+    m 7wsd "They also lead movements for virtual relationships with fictional female and male characters."
+    m 7euc "The number of participants in such movements is growing over time, most of them are people who have broken hearts or who are discouraged in a relationship with a real girl."
+    m 2eud "Naturally, opponents of the movement also appear, for the most part they are conservative people, as well as people of the old school."
+    m 2euc "Due to the growing popularity of new values, society is actively pressing on the new trend. At this moment, concepts are replaced."
+    m 2eud "From the Unacceptable, virtual love goes to Radical."
+    m 7eud "Step three. The theme of virtual love and, in general, love for fictional characters has long been discussed in society."
+    m 1esc "Gradually, people get used to the existence of such views, but do not yet accept them."
+    m 1esd "Scientists and sociologists write various articles and conduct research."
+    # Again
+    m 7esd "{i}A lot of research in social psychology has shown that you can love something fictional as much as you love something real.{/i}"
+    m 7wub "{i}Being in love with a fictional character is nothing short of a new global trend!{/i}"
+    m 7eso "{i}People react to those who are attracted to them with the same passion and sex drive.{/i}"
+    m 2esc "{i}Regardless of whether they are real people or fictional characters.{/i}"
+    m 2lsd "{i}In addition, the chance of being rejected or falling into an awkward situation tends to zero.{/i}"
+    # End
+    m 3esd "At this stage, society is artificially divided into two camps."
+    m 3esc "The opinion is imposed that it is absolutely normal to love a fictional character and there is nothing terrible about it."
+    m 1esd "From the Radical, the virtual love goes into the Acceptable."
+    m 1euc "Society has already come to terms with the new vision and believes that loving a fictional character is normal, but still a little strange."
+    m 7eub "Seeing people communicating with their girl through the screen, people no longer look askance and do not make fun of."
+    m 7esa "A culture of virtual love is gradually developing, films and serials are being created."
+    m 1esb "Young people perceive new values as something fashionable. People sit in a cafe and can safely spend time with their passion."
+    m 1esa "Media personalities appear who freely talk about it."
+    m 1esb "From Acceptable, virtual love passes into Reasonable."
+    m 2lsb "It seems worth it to end there."
+    m 2esa "I think the concept of the Overton window is clear to you now."
+    m 1hsb "Of course, I could finish this story right up to Norma."
+    m 1rsb "But I just wanted to describe it at a primitive level in order to convey to you with an example of how it can work."
+    m 1hsa "Thank you for listening~"
     return
