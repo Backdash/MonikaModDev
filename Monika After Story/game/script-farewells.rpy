@@ -443,7 +443,10 @@ label bye_prompt_to_class:
             m 3hksdlb "I'm just kidding, [player]."
             m 2eka "You're so sweet for seeing me even when you have so little time."
             m 2hub "I just want you to know I really appreciate that!"
-            m 2eka "Study hard [player], I'm sure you'll do great!"
+            if persistent._mas_pm_likes_studying == mas_STUDY_LIKE_NO or persistent._mas_pm_good_at_studying == mas_STUDY_GOOD_NO:
+                m 2eka "Have a good day at school [player], I'm sure you'll do great!"
+            else:
+                m 2eka "Study hard [player], I'm sure you'll do great!"
             m 2hua "See you when you get back!"
         elif session_time < datetime.timedelta(hours=1):
             m 2eua "Alright, thanks for spending some time with me, [player]!"
@@ -452,9 +455,16 @@ label bye_prompt_to_class:
             m 3eub "Teach me something when you get back!"
             m "See you soon!"
         elif session_time < datetime.timedelta(hours=6):
-            m 1hua "Study hard, [player]!"
-            m 1eua "Nothing is more attractive than a [guy] with good grades."
-            m 1hua "See you later!"
+            if persistent._mas_pm_likes_studying == mas_STUDY_LIKE_NO:
+                m 1eua "Have a good day at school, [player]."
+                m 1rksdla "I hope you won't get too bored in class..."
+            else:
+                m 1hua "Study hard, [player]!"
+                if persistent._mas_pm_good_at_studying == mas_STUDY_GOOD_NO:
+                    m 1eka "The day may be good or bad, but I'm sure you'll do just fine..."
+                else:
+                    m 1eua "Nothing is more attractive than a [guy] with good grades."
+            m 1hua "Anyway, see you later!"
         else:
             m 2ekc "Umm...you've been here with me for quite a while, [player]."
             m 2ekd "Are you sure you've had enough rest for it?"

@@ -3024,6 +3024,10 @@ label greeting_back_from_school:
             m 2dsc "I see..."
             m 3esd "People probably tell you all the time that school is important..."
             m 3esc "And that you always have to push on and work hard..."
+
+            if persistent._mas_pm_likes_studying and persistent._mas_pm_good_at_studying:
+                m 3rssdla "...And I guess even I said something like that too..."
+
             m 2dkd "Sometimes though, it can really stress people out and put them in a downward spiral."
             m 2eka "Like I said, I'm glad you came to see me, [player]."
             m 3eka "It's nice to know that I can comfort you when you're feeling down."
