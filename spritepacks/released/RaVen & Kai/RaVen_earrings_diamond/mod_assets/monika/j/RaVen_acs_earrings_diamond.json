@@ -1,0 +1,24 @@
+{
+    "__author": [
+        "RaVen",
+        "Kaiewe"
+    ],
+    "version": 3,
+    "type": 0,
+    "name": "raven_earrings_diamond",
+    "img_sit": "raven_earrings_diamond",
+    "pose_map": {
+        "default": "0",
+        "l_default": "5"
+    },
+    "rec_layer": 4,
+    "acs_type": "earrings",
+    "stay_on_start": true,
+    "dlg_plural": true,
+    "select_info": {
+        "display_name": "Earrings (Diamond)",
+        "thumb": "raven_earrings_diamond",
+        "group": "earrings"
+    },
+    "giftname": "diamondearrings"
+}
