@@ -1252,6 +1252,25 @@ init 6 python:
         cons_high=30*60 #30 minute max
     )
 
+    mas_consumable_hanami_dango = MASConsumable(
+        consumable_id="hanami_dango",
+        consumable_type=store.mas_consumables.TYPE_FOOD,
+        disp_name="Hanami dango",
+        dlg_props={
+            mas_consumables.PROP_OBJ_REF: "plate",
+            mas_consumables.PROP_PLUR: True
+        },
+        start_end_tuple_list=[(16,18)],
+        acs=mas_acs_hanami_dango,
+        split_list=[17],
+        late_entry_list=[17],
+        max_re_serve=1,
+        should_restock_warn=False,
+        max_stock_amount=20,
+        prep_low=None,
+        cons_high=30*60 #30 minute max
+    )
+
 #START: Finished brewing/drinking evs
 ##Finished brewing
 init 5 python:
