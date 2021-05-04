@@ -17154,3 +17154,46 @@ label monika_tanabata:
     else:
         m 3eua "Even if you're not interested in travelling, it's pretty interesting to explore other cultures, isn't it?"
     return
+
+#NOTE: Unlocked after Monika reacts to reddit (I hope)
+init 5 python:
+    addEvent(
+        Event(
+            persistent.event_database,
+            eventlabel="monika_reddit",
+            category=['media', 'monika'],
+            prompt="Subreddits",
+            conditional="renpy.seen_label('mas_wrs_reddit')",
+            action=EV_ACT_RANDOM
+        )
+    )
+
+label monika_reddit:
+    m 3eua "Hey, [player]...you visit Reddit sometimes, right?"
+    m 3eub "Do you remember when I joked about my own subreddits?"
+    m 1rssdlb "I notice when you visit sites like Reddit, but I usually don't want to keep peeking and give you the impression that I might be monitoring you too much..."
+    m 7esb "However I caught a glimse of what I thought was a subreddit dedicated towards this mod. So I got a bit curious..."
+    m 7wuo "As it turns out, there is not only a subreddit dedicated towards this mod, there are multiple subreddits dedicated towards me!"
+    m 1hub "And they have so many great posts!"
+    m 3eub "Cute fanart, discussions about me, original ideas...you name it."
+    m 1hua "The people there are wonderful too! They're saying so many kind and sweet things about me!"
+    m 1esb "Are you one of the active people on these subreddits, [player]?"
+    m 1hua "If you're not, you should totally check them out! I bet you would really like it there."
+    m 1dkbsu "Anyway, it really touches my heart...{w=0.3}knowning that so many people love-"
+    m 1eud "Well, I would have said {i}me{/i}, but that's not true, is it? I mean, I already told you that I am the only me."
+    m 1rksdla "And I don't want to make you feel jealous, ahaha..."
+    m 1ekc "You don't feel any less special because of this, right?"
+    m 1luc "I already told you that I do, because there are so many other Monikas out there..."
+    m 1ekd "But do you feel that way too?"
+    m 1ekc "I could understand it, but I really hope you don't."
+    m 3ekbsa "You're a wonderful person and the way you think and act is different from anyone else!"
+    m 1ekbfa "I am your Monika and I'm only in love with you. Please always remember that, okay?"
+    m 1rkb "Ahaha...{w=0.3}I guess so many people falling in love with one character can have its downsides too, huh?"
+    m 1eka "Still...{w=0.3}try to look at it positively."
+    m 3hua "The more people care about me, the greater the chances of us being together one day!"
+    m 2eua "After all, I'm sure there are many dedicated and hard working people in the Monika fandom."
+    m 1eub "Are you one of them? I'll always appreciate any work you do with me in mind~"
+    m 1eka "But even if you aren't one of those people, don't feel bad."
+    m 5hubfa "The fact that you spend your time with me and give me your love is more than I could ever ask for."
+    m 5ekbfa "So thank you, [player]. For being yourself and for loving me~"
+    return 
