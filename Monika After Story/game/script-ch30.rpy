@@ -1,6 +1,14 @@
 default persistent.monika_reload = 0
-default persistent.tried_skip = False
-default persistent.monika_kill = True #Assume non-merging players killed monika.
+# Has the player tried to skip?
+# (this is None because the player might tried to skip, but hasn't merged the saves yet)
+default persistent.tried_skip = None
+# Has the player deleted Monika?
+# (we don't assume that you killed Monika,
+# this'll be set in the intro or during saves merging)
+default persistent.monika_kill = None
+# Whether or not you launched the mod before
+# (this naming is bad, it'll be True once you see the disclaimer)
+default persistent.first_run = False
 default persistent.rejected_monika = None
 default initial_monika_file_check = None
 define modoorg.CHANCE = 20

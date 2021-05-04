@@ -6,6 +6,17 @@ label introduction:
     elif mas_isD25():
         $ persistent._mas_d25_spent_d25 = True
 
+    # Here we handle the monika_kill var
+    if persistent.monika_kill is None:
+        # If you've merged the saves and haven't reached act 4
+        # OR haven't merged at all (playthrough will be 0)
+        if persistent.playthrough < 4:
+            $ persistent.monika_kill = False
+
+        # Otherwise you had to delete her
+        else:
+            $ persistent.monika_kill = True
+
     $ play_song(store.songs.FP_JUST_MONIKA, set_per=True)
     if persistent.monika_kill:
         m 6dsc "..."

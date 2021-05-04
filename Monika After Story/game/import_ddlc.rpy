@@ -173,11 +173,13 @@ label import_ddlc_persistent:
                 new_persistent - persistent to copy data to
 
             NOTE: Should only be used to update dicts
+            NOTE: Assumes the dict exists in both persistents
             """
-
             if old_persistent.__dict__[key] is not None:
                 if new_persistent.__dict__[key] is not None:
-                    new_persistent.__dict__[key].update(old_persistent.__dict__[key])
+                    for k in old_persistent.__dict__[key]:
+                        if k not in new_persistent.__dict__[key]:
+                            new_persistent.__dict__[key][k] = old_persistent.__dict__[key][k]
 
                 else:
                     new_persistent.__dict__[key] = old_persistent.__dict__[key]
@@ -192,14 +194,11 @@ label import_ddlc_persistent:
                 new_persistent - persistent to copy data to
 
             NOTE: Should only be used to update bools
+            NOTE: Assumes the bool exists in both persistents
             """
             if old_persistent.__dict__[key] is not None:
-                if new_persistent.__dict__[key] is not None:
-                    new_persistent.__dict__[key] = new_persistent.__dict__[key] or old_persistent.__dict__[key]
-
-                else:
+                if new_persistent.__dict__[key] is None:
                     new_persistent.__dict__[key] = old_persistent.__dict__[key]
-
 
         #START: Transfers
         #_seen_ever: A dict storing all the labels we've seen through the game

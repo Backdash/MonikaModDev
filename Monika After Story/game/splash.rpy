@@ -183,8 +183,6 @@ label splashscreen:
     scene white
 
     #If this is the first time the game has been run, show a disclaimer
-    default persistent.first_run = False
-    $ persistent.tried_skip = False
     if not persistent.first_run:
         $ quick_menu = False
         pause 0.5
