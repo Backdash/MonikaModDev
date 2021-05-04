@@ -172,6 +172,25 @@ label mas_piano:
     call mas_piano_start
     return
 
+# ++++++++++++++++++++++++++++++++++++++++++++ NEW ADDITION +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+init 5 python:
+    addEvent(
+        Event(
+            persistent._mas_game_database,
+            eventlabel="mas_connect4",
+            prompt="Connect 4"
+        ),
+        code="GME",
+        restartBlacklist=True
+    )
+label mas_connect4:
+    call game_connect4
+    return
+
+# -------------------------------------------- NEW ADDITION -------------------------------------------------------
+
+
 label mas_pick_a_game:
     # we can assume that getting here means we didnt cut off monika
     $ mas_RaiseShield_dlg()

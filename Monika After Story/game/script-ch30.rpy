@@ -1828,6 +1828,7 @@ label ch30_reset:
             "chess": "mas_unlock_chess",
             mas_games.HANGMAN_NAME: "mas_unlock_hangman",
             "piano": "mas_unlock_piano",
+            "connect 4": "mas_unlock_connect4",
         }
         mas_unlockGame("pong") # always unlock pong
 
