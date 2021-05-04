@@ -6694,7 +6694,7 @@ init 2 python:
         if ref_str[0] in "aeiouAEIOU":
             return "An" if should_capitalize else "an"
         return "A" if should_capitalize else "a"
-
+        
     def mas_setEventPause(seconds=60):
         """
         Sets a pause 'til next event
