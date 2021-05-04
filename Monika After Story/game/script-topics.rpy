@@ -17154,3 +17154,28 @@ label monika_tanabata:
     else:
         m 3eua "Even if you're not interested in travelling, it's pretty interesting to explore other cultures, isn't it?"
     return
+
+init 5 python:
+    addEvent(Event(persistent.event_database,eventlabel="monika_grieving_and_loss",category=['advice','life'],prompt="Grieving",random=True))
+
+label monika_grieving_and_loss:
+    m 1lksdlc "[player], I know this is a bit personal, but have you ever lost someone important to you?"
+    m 6dkc "It’s a terrible feeling."
+    m 1dkd "It’s not every day that you get the news that someone close to you has passed away..."
+    m 3dsd "Most people would think crying is the norm when hearing this type of news."
+    m 4esd "But everyone is different; everyone processes it differently."
+    m 1eso "Grieving can take many forms, crying is one of them. But for some, they don’t know how to process it; it just doesn’t feel real."
+    m 1dkc "But there will be subtle reminders that reinforce the fact they are well and truly gone."
+    m 7dkd "Like looking at past photos of them..."
+    m 7rkd "Or maybe seeing the chair they used to sit on now empty..."
+    m 2dkd "All that suppressed emotion, whether it be sadness or anger, just bottle up, waiting to burst at any moment..."
+    m 7ekd "On top of that, the first anniversary, the first birthday, the first Christmas without them will always be the worst."
+    m 1dkd "And for some, it's just too much for them to handle..."
+    m 1dkc "But no matter how little words can mean at such a time, no matter how hopeless or lost you feel,{w=0.5} {nw}"
+    extend 1eka "time does heal."
+    m 1dud "Give yourself time to grieve. One day at a time."
+    m 1ekb "And at some point,{w=0.5} {nw}"
+    extend 1eka "you’ll look back at the fond memories that you have of them with a smile, rather than a tear to your eye."
+    m 3ekb "And no matter what happens, know that you’re strong enough to get through it, know that I love you, and know that I’ll always be here for you~"
+    m 1eka "I promise~"
+    return "love"
