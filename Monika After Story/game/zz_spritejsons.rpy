@@ -118,6 +118,9 @@
 #       - if False, then custom code will be required to unlock the sprite.
 #       - if True, the sprite will unlock automatically
 #       - Default True
+#   "mid_hair_map": {Pose Map object}
+#       - optional
+#       - denotes which poses support the mid hair layer
 # }
 #
 # CLOTHES only props:
@@ -707,6 +710,7 @@ init -21 python in mas_sprites_json:
         "arm_split",
         "pose_arms",
         HLITE,
+        "mid_hair_map",
     )
 
     # select info params
@@ -1603,6 +1607,34 @@ init 189 python in mas_sprites_json:
             indent_lvl
         ):
             return False
+
+        # mid hair map
+        if "mid_hair_map" in obj_based:
+            msg_log.append((
+                MSG_INFO_T,
+                indent_lvl,
+                MPM_LOADING.format("mid_hair_map")
+            ))
+            mpm_msg_log = []
+            mid_hair_map = store.MASPoseMap.fromJSON(
+                obj_based.pop("mid_hair_map"),
+                mpm_msg_log,
+                indent_lvl + 1,
+                valid_types=(
+                    store.MASPoseMap.MPM_TYPE_ED,
+                )
+            )
+            msg_log.extend(mpm_msg_log)
+            if mid_hair_map is None:
+                return False
+
+            # and success
+            msg_log.append((
+                MSG_INFO_T,
+                indent_lvl,
+                MPM_SUCCESS.format("mid_hair_map")
+            ))
+            save_obj["mpm_mid"] = mid_hair_map
 
         # now validate highlight
         if HLITE in obj_based:

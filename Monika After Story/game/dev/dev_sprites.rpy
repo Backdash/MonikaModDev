@@ -124,6 +124,34 @@ init 100 python:
                 ))
 
 
+init -1 python:
+    dev_mas_hair_test = MASHair(
+        "dev_test",
+        "dev_test",
+        MASPoseMap(
+            default=True,
+            use_reg_for_l=True,
+        ),
+        ex_props={
+            "ribbon": True,
+        },
+        mpm_mid=MASPoseMap(
+            default=True,
+            l_default=False,
+        )
+    )
+    store.mas_sprites.init_hair(dev_mas_hair_test)
+    store.mas_selspr.init_selectable_hair(
+        dev_mas_hair_test,
+        "DEV TEST",
+        "dev_test",
+        "hair",
+        select_dlg=[
+            "I AM A TEST"
+        ]
+    )
+
+
 init 5 python:
     addEvent(
         Event(
