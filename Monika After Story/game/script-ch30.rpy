@@ -2059,8 +2059,25 @@ label ch30_reset:
     # build background filter data and update the current filter progression
     $ store.mas_background.buildupdate()
 
+    # Handle cleanup for the bath greeting
+    $ bath_cleanup_ev = mas_getEV("mas_after_bath_cleanup")
+    if (
+        bath_cleanup_ev is not None
+        and bath_cleanup_ev.start_date is not None
+    ):
+        # Moni was alone for at least 10 minutes
+        # And it is the time to run cleanup
+        if (
+            mas_dockstat.retmoni_status is None
+            and mas_getAbsenceLength() >= datetime.timedelta(minutes=10)
+            and bath_cleanup_ev.start_date > datetime.datetime.now()
+        ):
+            call mas_after_bath_cleanup_change_outfit
+            $ mas_stripEVL("mas_after_bath_cleanup", list_pop=True, remove_dates=True)
+
     #set MAS window global
     $ mas_windowutils._setMASWindow()
+
     ## certain things may need to be reset if we took monika out
     # NOTE: this should be at the end of this label, much of this code might
     # undo stuff from above

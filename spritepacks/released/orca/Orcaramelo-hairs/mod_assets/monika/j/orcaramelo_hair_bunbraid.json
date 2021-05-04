@@ -1,0 +1,24 @@
+{
+    "__author": "Orcaramelo",
+    "version": 3,
+    "type": 1,
+    "name": "orcaramelo_bunbraid",
+    "img_sit": "orcaramelo_bunbraid",
+    "pose_map": {
+        "mpm_type": 0,
+        "default": true,
+        "use_reg_for_l": true
+    },
+    "stay_on_start": true,
+    "ex_props": {
+        "ribbon": true,
+        "braidstrand": true,
+        "bunbraid": true
+    },
+    "select_info": {
+        "display_name": "Bun Braid",
+        "thumb": "orcaramelo_bunbraid",
+        "group": "hair"
+    },
+    "unlock": true
+}

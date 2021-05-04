@@ -180,12 +180,13 @@ init -1 python in mas_greetings:
 
         # rule checks
         if not (
-                store.MASSelectiveRepeatRule.evaluate_rule(
-                    check_time, ev, defval=True)
-                and store.MASNumericalRepeatRule.evaluate_rule(
-                    check_time, ev, defval=True)
-                and store.MASGreetingRule.evaluate_rule(ev, defval=True)
-            ):
+            store.MASSelectiveRepeatRule.evaluate_rule(
+                check_time, ev, defval=True)
+            and store.MASNumericalRepeatRule.evaluate_rule(
+                check_time, ev, defval=True)
+            and store.MASGreetingRule.evaluate_rule(ev, defval=True)
+            and store.MASTimedeltaRepeatRule.evaluate_rule(ev)
+        ):
             return False
 
         # conditional check
@@ -1624,6 +1625,39 @@ label monikaroom_greeting_ear_renpy_docs:
     elif mas_isMoniDis():
         m "...I {i}have{/i} to figure this out."
         call monikaroom_greeting_ear_prog_dis
+
+    jump monikaroom_greeting_choice
+
+init 5 python:
+    gmr.eardoor.append("monikaroom_greeting_ear_recursionerror")
+
+label monikaroom_greeting_ear_recursionerror:
+    m "Hmm, now that looks good. Let's-{w=0.5}{nw}"
+    m "Wait, no. Gosh, how did I forget..."
+    m "This has to be called right here."
+
+    python:
+        for loop_count in range(random.randint(2, 3)):
+            renpy.say(m, "Great! Alright, let's see...")
+
+    show noise
+    play sound "sfx/s_kill_glitch1.ogg"
+    pause 0.1
+    stop sound
+    hide noise
+
+    m "{cps=*2}What?!{/cps} {w=0.25}A RecursionError?!"
+    m "'Maximum recursion depth exceeded...'{w=0.7} How is this even happening?"
+    m "..."
+
+    if mas_isMoniUpset():
+        m "...Keep going, Monika, you'll figure this out."
+        call monikaroom_greeting_ear_prog_upset
+    elif mas_isMoniDis():
+        m "...Keep{w=0.1} it{w=0.1} going{w=0.1}, Monika. You {i}have{/i} to do this."
+        call monikaroom_greeting_ear_prog_dis
+    else:
+        m "Phew, at least everything else is fine."
 
     jump monikaroom_greeting_choice
 
@@ -4389,38 +4423,176 @@ label greeting_spacing_out:
     m 1hubsb "Ahaha~"
     m 1eua "I'm very happy to see you again. {w=0.2}{nw}"
     extend 3eua "What should we do today, [player]?"
-
     return
 
 init 5 python:
-    gmr.eardoor.append("monikaroom_greeting_ear_recursionerror")
+    ev_rules = dict()
+    ev_rules.update(
+        MASGreetingRule.create_rule(
+            skip_visual=True,
+            random_chance=20,
+            override_type=True
+        )
+    )
+    ev_rules.update(
+        MASTimedeltaRepeatRule.create_rule(
+            datetime.timedelta(days=3)
+        )
+    )
 
-label monikaroom_greeting_ear_recursionerror:
-    m "Hmm, now that looks good. Let's-{w=0.5}{nw}"
-    m "Wait, no. Gosh, how did I forget..."
-    m "This has to be called right here."
+    addEvent(
+        Event(
+            persistent.greeting_database,
+            eventlabel="greeting_after_bath",
+            conditional=(
+                "mas_getAbsenceLength() >= datetime.timedelta(hours=6) "
+                "and not mas_isSpecialDay()"
+            ),
+            unlocked=True,
+            rules=ev_rules,
+            aff_range=(mas_aff.LOVE, None)
+        ),
+        code="GRE"
+    )
+
+    del ev_rules
+
+# TODO: move this to change_clothes, also add a similar var for hair
+default persistent._mas_previous_clothes = mas_clothes_def.name
+
+label greeting_after_bath:
+    python hide:
+        # Some preperations
+        mas_RaiseShield_core()
+        mas_startupWeather()
+        # Let Moni get a towel
+        persistent._mas_previous_clothes = monika_chr.clothes.name
+        monika_chr.change_clothes(
+            random.choice(MASClothes.by_exprop(mas_sprites.EXP_C_WET, None)),
+            by_user=False,
+            outfit_mode=True
+        )
+        # In case the towel already set an appropriate hair, we don't change it
+        if not monika_chr.is_wearing_hair_with_exprop(mas_sprites.EXP_H_WET):
+            monika_chr.change_hair(mas_hair_wet, by_user=False)
+        # We leave this acs to the clothes PPs in case the towel we chose doesn't support it
+        # if not monika_chr.is_wearing_acs(mas_acs_water_drops):
+        #     monika_chr.wear_acs(mas_acs_water_drops)
+        # Set the cleaup event
+        mas_setEVLPropValues(
+            "mas_after_bath_cleanup",
+            start_date=datetime.datetime.now() + datetime.timedelta(minutes=random.randint(30, 90)),
+            action=EV_ACT_QUEUE
+        )
+        mas_startup_song()
+
+    # Now show everything
+    call spaceroom(hide_monika=True, dissolve_all=True, scene_change=True, show_emptydesk=True)
+
+    $ renpy.pause(random.randint(5, 15), hard=True)
+    # show monika 1huu_static at t11 zorder MAS_MONIKA_Z with dissolve_monika
+    call mas_transition_from_emptydesk("monika 1huu")
+    $ renpy.pause(2.0)
+    $ quick_menu = True
+
+    m 1wuo "Oh! {w=0.2}{nw}"
+    extend 2wuo "[player]! {w=0.2}{nw}"
+    extend 2lubsa "I was thinking about you."
+
+    $ bathing_showering = random.choice(("bathing", "showering"))
+
+    if mas_getEVL_shown_count("greeting_after_bath") < 5:
+        m 7lubsb "I just finished [bathing_showering]...{w=0.3}{nw}"
+        extend 1ekbfa "You don't mind me in just a towel, do you?~"
+        m 1hubfb "Ahaha~"
+        m 3hubsa "I'll be getting ready for the day soon."
+
+    # Gets used to it
+    else:
+        m 7eubsb "I just finished [bathing_showering]."
+
+        if mas_canShowRisque() and random.randint(0, 3) == 0:
+            m 1msbfb "I bet you wish you could've joined me there..."
+            m 1tsbfu "Well, maybe one day~"
+            m 1hubfb "Ahaha~"
+
+        else:
+            m 1eua "I'll be getting ready for the day soon."
 
     python:
-        for loop_count in range(random.randint(2, 3)):
-            renpy.say(m, "Great! Alright, let's see...")
+        # enable music menu and music hotkeys
+        mas_MUINDropShield()
+        # keymaps should be set
+        set_keymaps()
+        # show the overlays
+        mas_OVLShow()
 
-    show noise
-    play sound "sfx/s_kill_glitch1.ogg"
-    pause 0.1
-    stop sound
-    hide noise
+        del bathing_showering
 
-    m "{cps=*2}What?!{/cps} {w=0.25}A RecursionError?!"
-    m "'Maximum recursion depth exceeded...'{w=0.7} How is this even happening?"
-    m "..."
+    return
 
-    if mas_isMoniUpset():
-        m "...Keep going, Monika, you'll figure this out."
-        call monikaroom_greeting_ear_prog_upset
-    elif mas_isMoniDis():
-        m "...Keep{w=0.1} it{w=0.1} going{w=0.1}, Monika. You {i}have{/i} to do this."
-        call monikaroom_greeting_ear_prog_dis
+# NOTE: This is not a greeting, but a followup for the greeting above, so I decided to keep them together
+init 5 python:
+    addEvent(Event(persistent.event_database, eventlabel="mas_after_bath_cleanup", show_in_idle=True, rules={"skip alert": None}))
+
+label mas_after_bath_cleanup:
+    # Sanity check (checking for towel should be enough)
+    if not monika_chr.is_wearing_clothes_with_exprop(mas_sprites.EXP_C_WET):
+        return
+
+    if mas_globals.in_idle_mode or (mas_canCheckActiveWindow() and not mas_isFocused()):
+        m 1eua "I'm going to get myself ready.{w=0.5}.{w=0.5}.{w=0.5}{nw}"
+
     else:
-        m "Phew, at least everything else is fine."
+        m 1eua "Give me a moment [mas_get_player_nickname()], {w=0.2}{nw}"
+        extend 3eua "I'm going to get ready."
 
-    jump monikaroom_greeting_choice
+    window hide
+    call mas_transition_to_emptydesk
+
+    $ renpy.pause(1.0, hard=True)
+    call mas_after_bath_cleanup_change_outfit
+    $ renpy.pause(random.randint(10, 20), hard=True)
+
+    call mas_transition_from_emptydesk("monika 3hub")
+    window auto
+
+    if mas_globals.in_idle_mode or (mas_canCheckActiveWindow() and not mas_isFocused()):
+        m 3hub "All done!{w=1}{nw}"
+
+    else:
+        m 3hub "Alright, I finished my routine!"
+        m 1eua "So what would you like to do today, [player]?"
+
+    return
+
+label mas_after_bath_cleanup_change_outfit:
+    # TODO: Rng outfit selection wen
+    python hide:
+        prev_clothes = mas_sprites.get_sprite(mas_sprites.SP_CLOTHES, persistent._mas_previous_clothes)
+        # Fallback just in case
+        if prev_clothes is None or prev_clothes.hasprop(mas_sprites.EXP_C_WET):
+            if mas_isMoniHappy(higher=True):
+                prev_clothes = mas_clothes_blazerless
+
+            else:
+                prev_clothes = mas_clothes_def
+
+        monika_chr.change_clothes(
+            prev_clothes,
+            by_user=False,
+            outfit_mode=True
+        )
+        if monika_chr.is_wearing_hair_with_exprop(mas_sprites.EXP_H_WET):
+            monika_chr.change_hair(
+                random.choice(
+                    [
+                        hair_obj
+                        for hair_obj in mas_sprites.HAIR_MAP.itervalues()
+                        if not hair_obj.hasprop(mas_sprites.EXP_H_WET) and mas_sprites.is_clotheshair_compatible(monika_chr.clothes, hair_obj)
+                    ]
+                ),
+                by_user=False
+            )
+
+    return

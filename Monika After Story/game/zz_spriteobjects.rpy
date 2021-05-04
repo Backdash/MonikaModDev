@@ -297,6 +297,14 @@ init -2 python in mas_sprites:
         #Always remove rin ears
         _moni_chr.remove_acs(store.mas_acs_rin_ears)
 
+    def _hair_wet_entry(_moni_chr, **kwargs):
+        """
+        Entry prog point for wet hair
+        """
+        # We remove ahoge as it doesn't make sense on wet hair
+        # We don't restore it on hair change either
+        _moni_chr._set_ahoge(None)
+
     ######### CLOTHES [SPR020] ###########
     # available kwargs:
     #   entry:
@@ -575,6 +583,23 @@ init -2 python in mas_sprites:
 
             _acs_wear_if_gifted(_moni_chr, "velius94_bunnyscrunchie_blue")
 
+    def _clothes_bath_towel_white_entry(_moni_chr, **kwargs):
+        """
+        Entry prog point for bath towel
+        """
+        outfit_mode = kwargs.get("outfit_mode", False)
+
+        if outfit_mode:
+            _moni_chr.change_hair(store.mas_hair_wet, by_user=False)
+        # Always add water drops, otherwise why would you wear a towel
+        _moni_chr.wear_acs(store.mas_acs_water_drops)
+
+    def _clothes_bath_towel_white_exit(_moni_chr, **kwargs):
+        """
+        Exit prog point for bath towel
+        """
+        # Remove water drops
+        _moni_chr.remove_acs(store.mas_acs_water_drops)
 
     ######### ACS [SPR030] ###########
     # available kwargs:
@@ -818,6 +843,27 @@ init -1 python:
             "Looks cute, don't you think?"
         ]
     )
+
+    ### WET HAIR
+    ## wet
+    # Wet hairdown (this isn't selectable by user)
+    # Thanks Orca/Briar
+    mas_hair_wet = MASHair(
+        "wet",
+        "wet",
+        MASPoseMap(
+            default=True,
+            use_reg_for_l=True
+        ),
+        ex_props={
+            # TODO: req ex-prop store.mas_sprites.EXP_C_BRS
+            store.mas_sprites.EXP_H_RQCP: store.mas_sprites.EXP_C_WET,
+            store.mas_sprites.EXP_H_NT: True,
+            store.mas_sprites.EXP_H_WET: True
+        },
+        entry_pp=store.mas_sprites._hair_wet_entry
+    )
+    store.mas_sprites.init_hair(mas_hair_wet)
 
     ### CUSTOM
     ## custom
@@ -1218,6 +1264,29 @@ init -1 python:
             "Do you like what you see, [player]?"
         ]
     )
+
+    ### Towel (White)
+    ## bath_towel_white
+    # Bath towel for Monika (this isn't selectable by user)
+    # Thanks Briar
+    mas_clothes_bath_towel_white = MASClothes(
+        "bath_towel_white",
+        "bath_towel_white",
+        MASPoseMap(
+            default=True,
+            use_reg_for_l=True
+        ),
+        stay_on_start=True,
+        ex_props={
+            # TODO: req ex-prop store.mas_sprites.EXP_H_WET
+            store.mas_sprites.EXP_C_BRS: True,
+            store.mas_sprites.EXP_C_WET: True
+        },
+        entry_pp=store.mas_sprites._clothes_bath_towel_white_entry,
+        exit_pp=store.mas_sprites._clothes_bath_towel_white_exit,
+        pose_arms=MASPoseArms({}, def_base=False)
+    )
+    store.mas_sprites.init_clothes(mas_clothes_bath_towel_white)
 
 init -1 python:
     # ACCESSORIES (SPR130)
@@ -1666,7 +1735,7 @@ init -1 python:
         # muxtype handled by defaults
         ex_props={
             store.mas_sprites.EXP_A_RQHP: store.mas_sprites.EXP_H_NT,
-            store.mas_sprites.EXP_A_EXCLHP: store.mas_sprites.EXP_H_TB
+            store.mas_sprites.EXP_A_EXCLHP: [store.mas_sprites.EXP_H_TB, store.mas_sprites.EXP_H_WET]
         },
         rec_layer=MASMonika.AFH_ACS
     )
@@ -2510,6 +2579,24 @@ init -1 python:
         keep_on_desk=True
     )
     store.mas_sprites.init_acs(mas_acs_roses)
+
+    ### Water drops
+    ## water_drops
+    # Water drops on Monika's body
+    # Thanks Orca
+    mas_acs_water_drops = MASAccessory(
+        "water_drops",
+        "water_drops",
+        MASPoseMap(
+            default="0",
+            p5="5"
+        ),
+        acs_type="water-drops",
+        priority=1,
+        stay_on_start=True,
+        rec_layer=MASMonika.MAB_ACS,
+    )
+    store.mas_sprites.init_acs(mas_acs_water_drops)
 
 #### ACCCESSORY VARIABLES (SPR230)
 # variables that accessories may need for enabling / disabling / whatever

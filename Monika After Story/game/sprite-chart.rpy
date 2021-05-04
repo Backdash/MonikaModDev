@@ -333,6 +333,10 @@ init -100 python in mas_sprites:
     #v: ignored
     #marks the hair as a twinbraid hairstyle
 
+    # Value: ignored
+    # Marks that a hair obj is wet (appropriate for a bath/shower/pool/etc)
+    EXP_H_WET = "wet"
+
     # ---- CLOTHES ----
 
     EXP_C_BLS = "bare-left-shoulder"
@@ -367,6 +371,10 @@ init -100 python in mas_sprites:
     EXP_C_LING = "lingerie"
     # v: ignored
     # marks that a clothing item is lingerie
+
+    # Value: ignored
+    # Marks that a clothing item is wet (appropriate for a bath/shower/pool/etc)
+    EXP_C_WET = "wet"
 
     # --- default exprops ---
 

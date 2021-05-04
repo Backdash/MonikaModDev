@@ -15,6 +15,7 @@ init -1 python:
     EV_RULE_AFF_RANGE = "affection_range"
     EV_RULE_PRIORITY = "rule_priority"
     EV_RULE_PROBABILITY = "rule_probability"
+    EV_RULE_REPEAT_TD = "rule_repeat_td"
 
 
     # special constants for numerical repeat rules
@@ -792,6 +793,72 @@ init -1 python:
                 The probability of the given event, or def if no ProbilityRule is found
             """
             return ev.rules.get(EV_RULE_PROBABILITY, MASProbabilityRule.DEF_PROBABILITY)
+
+    class MASTimedeltaRepeatRule(object):
+        """
+        Static class used to create repeat rules.
+        Timedelta repeat rules allow events to be repeated only every 'timedelta' since their last seen.
+        """
+        @staticmethod
+        def create_rule(timedelta, ev=None):
+            """
+            IN:
+                timedelta - the timedelta to set
+
+                ev - the event to add this rule to
+                    (Default: None)
+
+            OUT:
+                dict containing the rule
+            """
+            if not isinstance(timedelta, datetime.timedelta):
+                raise Exception(
+                    "MASTimedeltaRepeatRule expects a datetime.timedelta object, got: '{0}'.".format(timedelta)
+                )
+
+            elif not timedelta:
+                raise Exception(
+                    "MASTimedeltaRepeatRule expects a datetime.timedelta object with a non-null value."
+                )
+
+            rule = {EV_RULE_REPEAT_TD: timedelta}
+
+            if ev:
+                ev.rules.update(rule)
+
+            return rule
+
+        @staticmethod
+        def evaluate_rule(event=None, rule=None, now=None):
+            """
+            Evaluates a MASTimedeltaRepeatRule rule
+
+            IN:
+                event - the event to evaluate
+                rule - the timedelta of the MASTimedeltaRepeatRule to check against,
+                    if None, we get it from the event
+                    (Default: None)
+                now - time to check against, if None, datetime.datetime.now() is used
+                    (Default: None)
+
+            OUT:
+                boolean whether or not the event's passed
+            """
+            # No event, no deal
+            if event is None:
+                return False
+
+            if rule is None:
+                rule = event.rules.get(EV_RULE_REPEAT_TD, None)
+
+            # Empty timedelta? You passed
+            if not rule:
+                return True
+
+            if now is None:
+                now = datetime.datetime.now()
+
+            return event.timePassedSinceLastSeen_dt(rule, now)
 
 init python:
     # these rules are NOT actually event rules since they don't create rule
