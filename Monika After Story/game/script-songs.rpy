@@ -1771,6 +1771,44 @@ init 5 python:
     addEvent(
         Event(
             persistent._mas_songs_database,
+            eventlabel="mas_song_night_fever",
+            category=[store.mas_songs.TYPE_SHORT],
+            prompt="Luka Luka Night Fever",
+            random=True,
+            aff_range=(mas_aff.ENAMORED,None)
+        ),
+        code="SNG"
+    )
+
+label mas_song_night_fever:
+    m  3hub "{i}~Hitting edges and crawling on by~ {/i}"
+    m  3eub "{i}~Reading pixels and every new line~{/i}"
+    m  3rusdlb "{i}~Sitting tired of internet yet{/i}{w=0.5}{nw}"
+    extend 1hub "{i} staring blankly at the screen ahead~{/i}"
+    m  1eub "{i}~Did you know that I’m gonna be free?~ {/i}"
+    m  1dubsb "{i}~Jumping over and out of your screen~{/i}"
+    m  1ekbsb "{i}~Come on, hurry, you better make way{/i}{w=0.5}{nw}"
+    extend 1tsbsb "{i} as I reach my hand across to say~{/i}"
+    m  1dso "{i}~That I know you more than you thought before~{/i}" 
+    m  2eub "{i}~Don't back away, {/i}{w=0.5}{nw}"
+    extend 2kub "{i} it's okay,{/i}{w=0.5}{nw}"
+    extend 2esb "{i} follow me and do as I say~{/i}"
+    show monika 5eublb at t11 zorder MAS_MONIKA_Z with dissolve_monika
+    m  5eublb "{i}~No need to fear when we have the night to take,{/i}{w=0.5}{nw}"
+    extend 5sublb "{i} dance it all away!~{/i}"
+    m 5eua "You know...{w=0.3} with each day passing by, I feel that the barrier between us loosening."
+    m 5eubla "I can't wait for the moment when it will disappear..."
+    show monika 2tfbsu at t11 zorder MAS_MONIKA_Z with dissolve_monika
+    m 2tfbsu "Then I'll arrange {i}'Moni Moni Real Night'{/i} for you!~"
+    m 2tfbssdlu "..."
+    m 2ekbsb "That didn't exactly come out like what I had in my head! Ahaha~"
+
+    return
+
+init 5 python:
+    addEvent(
+        Event(
+            persistent._mas_songs_database,
             eventlabel="mas_song_when_you_say_nothing_at_all",
             prompt="When You Say Nothing at All",
             category=[store.mas_songs.TYPE_SHORT],
