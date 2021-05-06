@@ -1604,6 +1604,24 @@ init -1 python:
     )
     store.mas_sprites.init_acs(mas_acs_hotchoc_mug)
 
+    ###CUPCAKE
+    ## cupcake
+    # Natsuki's cupcakes
+    # thank you JMO!
+    mas_acs_cupcake = MASAccessory(
+        "cupcake",
+        "cupcake",
+        MASPoseMap(
+            default="0",
+            use_reg_for_l=True
+        ),
+        stay_on_start=True,
+        acs_type="plate",
+        mux_type=store.mas_sprites.DEF_MUX_LD,
+        keep_on_desk=False
+    )
+    store.mas_sprites.init_acs(mas_acs_cupcake)
+
     ### MUSIC NOTE NECKLACE (GOLD)
     ## musicnote_necklace_gold
     # The necklace Monika wore in the vday outfit

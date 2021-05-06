@@ -1252,6 +1252,21 @@ init 6 python:
         cons_high=30*60 #30 minute max
     )
 
+    MASConsumable(
+        consumable_id="cupcake",
+        consumable_type=store.mas_consumables.TYPE_FOOD,
+        disp_name="cupcake",
+        start_end_tuple_list=[(12,20)],
+        acs=mas_acs_cupcake,
+        split_list=[19],
+        late_entry_list=[13, 19],
+        max_re_serve=1,
+        should_restock_warn=False,
+        max_stock_amount=6,
+        prep_low=None,
+        cons_high=15*60,
+    )
+
 #START: Finished brewing/drinking evs
 ##Finished brewing
 init 5 python:

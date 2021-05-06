@@ -1590,25 +1590,53 @@ init 5 python:
     #plus, Monika said she wants either Natsuki's cupcakes or the player's
 
 label mas_reaction_cupcake:
-    m 1wud "Is that a...cupcake?"
-    m 3hub "Wow, thanks [player]!"
-    m 3euc "Come to think of it, I've been meaning to make some cupcakes myself."
-    m 1eua "I wanted to learn how to bake good pastries like Natsuki did."
-    m 1rksdlb "Buuut I still haven't made a kitchen to use!"
-    m 3eub "Maybe in the future once I get better at programming, I'll be able to make one here."
-    m 3hua "Would be nice to have another hobby other than writing, ehehe~"
+    $ cupcake = mas_getConsumable("cupcake")
+    $ mas_giftCapGainAff(1)
+    $ is_having_food = bool(MASConsumable._getCurrentFood())
+
+    if cupcake.isMaxedStock():
+        m 1eksdla "[player], I already have too many cupcakes to eat."
+        m 1eka "You should keep some sweetness for yourself, [mas_get_player_nickname()]."
+
+    else:
+        if cupcake.enabled():
+            m 3hua "Oh, it's another cupcake!"
+            m 3hub "Thanks, [mas_get_player_nickname()]!"
+
+        else:
+            if not is_having_food:
+                if monika_chr.is_wearing_acs(mas_acs_quetzalplushie):
+                    $ monika_chr.wear_acs(mas_acs_center_quetzalplushie)
+                $ cupcake.have(skip_leadin=True)
+
+            $ mas_giftCapGainAff(3)
+            m 3wub "Oh, it's a cupcake!"
+
+            if store.seen_event("monika_cupcake"):
+                m 1hub "Did you remember that I was craving them? That's so {i}sweet{/i} of you, ehehe~"
+            else:
+                m 1hub "Oh, it almost looks too good to eat!!"
+
+            if is_having_food:
+                m 3hua "If it's alright with you, I'm going to save this as a treat."
+
+            m 1eua "Thanks, [player]~"
+
+            if not is_having_food and monika_chr.is_wearing_acs(mas_acs_center_quetzalplushie):
+                m 3eua "Oh, let me just put this plushie away."
+
+                call mas_transition_to_emptydesk
+                $ monika_chr.remove_acs(mas_acs_center_quetzalplushie)
+                pause 3.0
+                call mas_transition_from_emptydesk
+
+            #Enable the gift
+            $ cupcake.enable()
+
+        #Restock
+        $ cupcake.restock(1)
     $ mas_receivedGift("mas_reaction_cupcake")
     $ store.mas_filereacts.delete_file(mas_getEVLPropValue("mas_reaction_cupcake", "category"))
-    return
-
-
-# ending label for gift reactions, this just resets a thing
-label mas_reaction_end:
-    python:
-        persistent._mas_filereacts_just_reacted = False
-        #Save all the new sprite data just in case we crash shortly after this
-        store.mas_selspr.save_selectables()
-        renpy.save_persistent()
     return
 
 init 5 python:
