@@ -17154,3 +17154,80 @@ label monika_tanabata:
     else:
         m 3eua "Even if you're not interested in travelling, it's pretty interesting to explore other cultures, isn't it?"
     return
+
+default persistent._mas_pm_knows_TRPGs = None
+
+init 5 python:
+    addEvent(
+        Event(
+            persistent.event_database,
+            eventlabel="monika_tabletop_rping",
+            category=['monika','games','literature'],
+            prompt="Tabletop Roleplaying",
+            random=True,
+            aff_range=(mas_aff.NORMAL, None)
+        )
+    )
+
+label monika_tabletop_rping:
+    m 1rua "Say, [player], there's this literary genre that I've been meaning to bring up lately."
+    m 3rud "To be honest, I've been reading up on it while you've been gone, and it seems somewhat intriguing."
+    m 3rusdlb "The genre is kind of unfamiliar territory to me though, but I thought I'd hear if you were interested in it."
+    m 3eub "It's called tabletop roleplaying! Are you familiar with it?{nw}"
+    $ _history_list.pop()
+    menu:
+        m "It's called tabletop roleplaying! Are you familiar with it?{fast}"
+        "Yes.":
+            $ persistent._mas_pm_knows_TRPGs = True
+            m 1husdlb "Oh, I had this whole conversation laid out."
+            m 1rubdlb "Mind indulging me for a bit?"
+        "No.":
+            $ persistent._mas_pm_knows_TRPGs = False
+            m 1rubdlb "Oh really? Then please indulge me while I tell you about it."
+
+    m 1eublb "You may have played 'pretend' when you were a kid growing up, right?"
+    m 3eub "It's a game where you assume the role of a different person, maybe in another world, and act and speak as them to form a narrative."
+    m 3hub "When you're doing it with friends it becomes much more fun, as you are also met with other people's character and interacting with each other."
+    m 3eud "But 'pretend' always had one big problem{w=0.3}... What do you do when you can't agree on the story's plot?"
+    m 2rub "It could often devolve into a 'my character is invulnerable and always wins' kind of situation, you know?"
+    m 3eua "To counteract this problem, tabletop roleplaying was invented."
+
+    m 3eub "The most popular tabletop roleplaying game is called 'Dungeons and Dragons', but that's far from the only one that exists..."
+    m 3rua "And its narrative form kind of always assumes a medieval fantasy setting, which not everyone wants."
+    m 3eub "It was one of the first popular tabletop roleplaying games, and it put almost all of the major rules in place."
+    m 3eud "In that game, not all players are equal, since there necessarily always needs to be a 'Dungeon Master'."
+    m 2eud "The Dungeon Master is the one who makes the setting of the story and controls the monsters and other obstacles."
+    m 3rub "So in a story with two adventurers, you need three people to make it work, as the Dungeon Master cannot be one."
+
+    m 1rub "Other Tabletop RPGs are a lot like theatre in the sense that everyone plays a character in the story, with the story itself being improvised as it goes."
+    m 3eub "Everyone participating is taking turns, writing a story by reacting to the others' actions and acting on it."
+    m 1eub "I guess that makes it a good writing exercise..."
+    m 7eub "You don't need to think of the entire story by yourself, as your character will end up in situations you probably never could have anticipated..."
+    m 7rua "...So you have to improvise at all times by choosing what you think would be the best course of action in every situation, while still staying in-character."
+
+    m 1eud "Unlike most other forms of literature, it's not an author expressing their own thoughts and opinions through written text."
+    m 3eub "The best way I can explain it is that tabletop roleplaying is kind of like the multiplayer experience of literature."
+    m 3husdlb "Just a little video game reference for you~"
+    m 3euc "The problem with that though is that once you reach the end of the story--{w=0.2}if you even manage to reach that point,{w=0.3} you'll often end up with a big, almost unreadable mess."
+    m 1ruc "...Which makes it harder to share this piece of literature with the world, and that's one of my favorite parts about literature."
+    m 1rub "It kind of becomes a 'you need to have been there to get it' kind of story."
+    m 3rub "But the metafictional story of how a group of people came together to have a good time with a roleplaying game, may in fact inspire people around the world too."
+    m 1rua "It may even be even more of an epic than the story in novel form would make on its own, especially if you really get into it."
+    m 1eublb "I will always prefer the beauty and wonder that real life can bring people when they do something fun together, after all."
+
+    if persistent._mas_pm_likes_board_games:
+        m 1ekbla "Maybe at some point we could make a little duo adventure or something... That would really make my day."
+        m 1hublb "I'm excited just talking about it~"
+    else:
+        m 3eub "I know you don't play too many board games, so I don't expect you to join me in an adventure sometime, but that's okay!"
+        m 1hub "I'm happy just talking about it~"
+    if seen_event('monika_tabletop_rping'):
+        m 2eka "..."
+        m "You know..."
+        extend 2rkd " I just realized, but it's a bit of a shame that I never thought of doing activities like that back in the club."
+        m 2ekb "We probably could've had a lot of fun together."
+        m 2eua "And who knows, maybe it would have made the club look more interesting to potential new members."
+        m 1ruc "Though, if I'm being honest...{w=0.3}{nw}"
+        extend 1rksdla "the idea of a {i}Doki Doki Roleplaying Club{/i} does sound pretty silly."
+        m 1hksdlb "Ahaha~"
+    return "derandom"
